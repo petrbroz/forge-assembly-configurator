@@ -1,4 +1,4 @@
-# forge-configurator
+# forge-assembly-configurator
 
 A simple, generic assembly configurator built using the [Autodesk Forge](https://forge.autodesk.com) platform.
 

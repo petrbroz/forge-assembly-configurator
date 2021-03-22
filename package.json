@@ -1,5 +1,5 @@
 {
-  "name": "forge-configurator",
+  "name": "forge-assembly-configurator",
   "version": "0.0.0",
   "description": "Generic configurator built with Autodesk Forge and Design Automation for Inventor.",
   "scripts": {
