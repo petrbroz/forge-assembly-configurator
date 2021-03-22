@@ -1,0 +1,40 @@
+extends layouts/default.pug
+
+block body
+  .container
+    .row
+      .col-md-9
+        h1.header Projects
+      .col-md-3
+        button.btn.btn-primary(type='button' data-toggle='modal' data-target='#new-project-modal') New Project
+    .row
+      for project in projects
+        .col-md-3
+          .card.mb-4.shadow-sm
+            img.card-img-top(src='/projects/' + project.id + '/thumbnail.png')
+            .card-body
+              h5.card-title= '' + project.name + ' (' + project.status + ')'
+              p.card-text= project.author
+              a.btn.btn-secondary(href='/projects/' + project.id) View
+  #new-project-modal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='new-project-modal-label' aria-hidden='true')
+    .modal-dialog(role='document')
+      form.modal-content(action="/projects" method="post" enctype="multipart/form-data")
+        .modal-header
+          h5#new-project-modal-label.modal-title New Project
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .form-group
+            label(for='project-title') Title
+            input#project-title.form-control(type='text' name='name' placeholder='Project title')
+          .form-group
+            label(for='project-author') Author
+            input#project-author.form-control(type='text' name='author' placeholder='Project author')
+          .form-group
+            label(for='project-template') Template
+            select#project-template.form-control(name='template_id')
+              for template in templates
+                option(value=template.id)= template.name + ' (' + template.author + ')'
+        .modal-footer
+          button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+          button.btn.btn-primary(type='submit') Create

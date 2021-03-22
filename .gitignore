@@ -1,0 +1,13 @@
+.env
+.vs/
+.vscode/
+output/
+bin/
+obj/
+node_modules/
+uploads/
+cache/
+*.log
+.DS_Store
+Thumbs.db
+packages/

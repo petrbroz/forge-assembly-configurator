@@ -1,0 +1,29 @@
+{
+  "name": "forge-configurator",
+  "version": "0.0.0",
+  "description": "Generic configurator built with Autodesk Forge and Design Automation for Inventor.",
+  "scripts": {
+    "start": "node server/app.js"
+  },
+  "keywords": [
+    "autodesk",
+    "forge",
+    "configurator"
+  ],
+  "author": "Petr Broz <petr.broz@autodesk.com>",
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.5.3",
+    "debug": "^4.3.1",
+    "express": "^4.17.1",
+    "forge-server-utils": "^8.3.0",
+    "fs-extra": "^9.1.0",
+    "multer": "^1.4.2",
+    "node-fetch": "^2.6.1",
+    "pug": "^3.0.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/forge-viewer": "^7.38.0"
+  }
+}

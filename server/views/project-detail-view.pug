@@ -1,0 +1,58 @@
+extends layouts/default.pug
+
+block head
+  script(src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js")
+  script(src="/scripts/extensions/connectors.js")
+  link(rel="stylesheet", href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css")
+  link(rel="stylesheet", href="/styles/project-detail.css")
+
+block body
+  .container
+    .row
+      .col-md-9
+        h1.header= project.name
+        table.table.table-sm
+          tbody
+            tr
+              th(scope='row') Author
+              td= project.author
+            tr
+              th(scope='row') Created
+              td= project.created
+            tr
+              th(scope='row') Status
+              td#project-status= project.status
+            tr
+              th(scope='row') Progress
+              td
+                .progress
+                  #progress.progress-bar(role='progressbar', style='width:' + project.progress + '%;', aria-valuenow=project.progress, aria-valuemin='0' aria-valuemax='100')
+        ul#tabs.nav.nav-tabs(role='tablist')
+          li.nav-item(role='presentation')
+            a#logs-tab.nav-link.active(data-toggle='tab' href='#logs-tab-content' role='tab' aria-controls='logs-tab-content' aria-selected='true') Logs
+          li.nav-item(role='presentation')
+            a#preview-tab.nav-link.disabled(data-toggle='tab' href='#preview-tab-content' role='tab' aria-controls='preview-tab-content' aria-selected='false') Preview
+          li.nav-item(role='presentation')
+            a#report-tab.nav-link.disabled(data-toggle='tab' href='#report-tab-content' role='tab' aria-controls='report-tab-content' aria-selected='false') Report
+        #tabs-content.tab-content.pt-2
+          #logs-tab-content.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='logs-tab')
+            .form-group
+              textarea#logs.form-control(rows='16')
+          #preview-tab-content.tab-pane.fade(role='tabpanel' aria-labelledby='preview-tab')
+            .relative
+              #preview
+          #report-tab-content.tab-pane.fade(role='tabpanel' aria-labelledby='report-tab')
+            .form-group
+              textarea#report.form-control(rows='16')
+      .col-md-3
+        .btn-group(role='group')
+          button#download-btn-group.btn.btn-secondary.dropdown-toggle.disabled(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Download
+          .dropdown-menu(aria-labelledby='download-btn-group')
+            a.dropdown-item(href='/projects/' + project.id + '/output.zip') Assembly (.zip)
+            a.dropdown-item(href='/projects/' + project.id + '/output.rfa') Revit Family (.rfa)
+
+block footer
+  script.
+    const PROJECT_ID = '#{project.id}';
+  script(src="/scripts/viewer-utilities.js")
+  script(src="/scripts/project-detail-view.js")

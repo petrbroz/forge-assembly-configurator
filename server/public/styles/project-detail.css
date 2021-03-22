@@ -1,0 +1,25 @@
+#preview {
+    position: absolute;
+    width: 640px;
+    height: 480px;
+}
+
+@media (max-width: 995px) {
+    #preview {
+        width: 480px;
+        height: 320px;
+    }
+}
+
+#enclosures img, #modules img {
+    height: 64px;
+    width: 64px;
+}
+
+#tabs-content textarea {
+    font-size: smaller;
+}
+
+.progress {
+    height: 1.5rem;
+}

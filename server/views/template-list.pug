@@ -1,0 +1,41 @@
+extends layouts/default.pug
+
+block body
+  .container
+    .row
+      .col-md-9
+        h1.header Templates
+      .col-md-3
+        button.btn.btn-primary(type='button' data-toggle='modal' data-target='#new-template-modal') New Template
+    .row
+      for template in templates
+        .col-md-3
+          .card.mb-4.shadow-sm
+            img.card-img-top(src='https://placeimg.com/300/150/tech')
+            .card-body
+              h5.card-title= template.name
+              p.card-text= template.author
+              if !template.published
+                a.btn.btn-secondary(href='/templates/' + template.id) Edit
+  #new-template-modal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='new-template-modal-label' aria-hidden='true')
+    .modal-dialog(role='document')
+      form.modal-content(action="/templates" method="post" enctype="multipart/form-data")
+        .modal-header
+          h5#new-template-modal-label.modal-title New Template
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .form-group
+            label(for='template-title') Title
+            input#template-title.form-control(type='text' name='name' placeholder='Template title')
+          .form-group
+            label(for='template-author') Author
+            input#template-author.form-control(type='text' name='author' placeholder='Template author')
+          .form-group
+            label(for='template-assets') Assets
+            .custom-file
+              input#template-assets.custom-file-input(type='file' name='assets')
+              label.custom-file-label(for='template-assets') Choose a zip file
+        .modal-footer
+          button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+          button.btn.btn-primary(type='submit') Create

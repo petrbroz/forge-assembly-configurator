@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Addin Type="Plugin">
+  <ClassId>{c0bef4f1-f632-4b05-8b2c-16b74ca5ff73}</ClassId>
+  <ClientId>{c0bef4f1-f632-4b05-8b2c-16b74ca5ff73}</ClientId>
+  <DisplayName>DesignAutomationForInventor1Plugin</DisplayName>
+  <Description>a DesignAutomationForInventor1Plugin</Description>
+  <Assembly>DesignAutomationForInventor1Plugin.dll</Assembly>
+</Addin>

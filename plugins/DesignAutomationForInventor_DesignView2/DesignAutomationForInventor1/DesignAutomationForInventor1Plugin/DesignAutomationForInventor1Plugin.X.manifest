@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity name="DesignAutomationForInventor1Plugin" version="1.0.0.0"></assemblyIdentity>
+  <clrClass clsid="{c0bef4f1-f632-4b05-8b2c-16b74ca5ff73}" progid="DesignAutomationForInventor1Plugin.PluginServer" threadingModel="Both" name="DesignAutomationForInventor1Plugin.PluginServer"></clrClass>
+  <file name="DesignAutomationForInventor1Plugin.dll" hashalg="SHA1"></file>
+</assembly>

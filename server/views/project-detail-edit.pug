@@ -1,0 +1,38 @@
+extends layouts/default.pug
+
+block head
+  script(src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js")
+  script(src="/scripts/extensions/connectors.js")
+  link(rel="stylesheet", href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css")
+  link(rel="stylesheet", href="/styles/project-detail.css")
+
+block body
+  .container
+    .row
+      .col-md-9
+        h1.header= project.name
+        .relative
+          #preview
+      .col-md-3
+        h3.pt-4 Enclosures
+        #enclosures.dropdown
+          button#dropdownMenu2.btn.btn-secondary.dropdown-toggle(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Enclosure
+          .dropdown-menu(aria-labelledby='dropdownMenu2')
+            for enclosure in enclosures
+              a.dropdown-item(href='#' data-urn=enclosure.urn data-template-id=template.id data-enclosure-id=enclosure.id)
+                img(src='/templates/' + template.id + '/enclosures/' + enclosure.id + '/thumbnail.png')
+                span= enclosure.name
+        h3.pt-4 Modules
+        #modules.list-group
+          for mod in modules
+            .list-group-item.list-group-item-action(data-urn=mod.urn, data-connector=mod.connector.join(','), data-path=mod.asset_path)
+              img(src='/templates/' + template.id + '/modules/' + mod.id + '/thumbnail.png')
+              span.pl-3= mod.name
+        .pt-4
+          button#build.btn.btn-primary(type='submit') Build
+
+block footer
+  script.
+    const PROJECT_ID = '#{project.id}';
+  script(src="/scripts/viewer-utilities.js")
+  script(src="/scripts/project-detail-edit.js")

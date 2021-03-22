@@ -1,0 +1,31 @@
+extends layouts/default.pug
+
+block head
+  script(src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js") 
+  link(rel="stylesheet", href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css")
+  link(rel="stylesheet", href="/styles/template-detail.css")
+
+block body
+  .container
+    .row
+      .col-md-9
+        h1.header= template.name
+        #viewer
+      .col-md-3
+        h3.pt-4 Enclosures
+        #enclosures.list-group
+          for enclosure in enclosures
+            button.list-group-item.list-group-item-action(type='button' data-urn=enclosure.urn)= enclosure.name
+        .pt-2
+          button.btn.btn-secondary Add Enclosure
+          button.btn.btn-secondary Add Snapping Point
+        h3.pt-4 Modules
+        #modules.list-group
+          for mod in modules 
+            button.list-group-item.list-group-item-action(type='button' data-urn=mod.urn)= mod.name
+        .pt-2
+          button.btn.btn-secondary Add Module
+          button.btn.btn-secondary Add Snapping Point
+
+block footer
+  script(src="/scripts/template-detail.js")
