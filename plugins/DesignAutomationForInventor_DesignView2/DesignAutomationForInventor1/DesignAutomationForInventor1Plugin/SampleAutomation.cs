@@ -247,6 +247,7 @@ namespace DesignAutomationForInventor1Plugin
                                 else
                                 {
                                     // Create the ImportedGenericComponentDefinition bases on an Alias file
+                                    LogTrace("Path of module: {0}", modulePath);
                                     dynamic oImportedGenericCompDef = compDef.ImportedComponents.CreateDefinition(modulePath);
 
                                     // Set the ReferenceModel to associatively import the Alias file
@@ -254,6 +255,8 @@ namespace DesignAutomationForInventor1Plugin
 
                                     // Import the Solidworks to assembly
                                     var oImportedComp = compDef.ImportedComponents.Add(oImportedGenericCompDef);
+                                    // Not doing an Update afetr adding a SolidWorks assembly can cause problems
+                                    asmDoc.Update2(); 
 
                                     compOcc = compDef.Occurrences[compDef.Occurrences.Count];
                                     compOcc.Transformation = matrix;
@@ -263,7 +266,6 @@ namespace DesignAutomationForInventor1Plugin
                             }
 
                             // Debugging
-                            var occurrencePath = compOcc.Definition.Document.FullFileName;
                             LogTrace("Path of added occurrence: {0}", occurrencePath);
                         }
                         catch (Exception e)
