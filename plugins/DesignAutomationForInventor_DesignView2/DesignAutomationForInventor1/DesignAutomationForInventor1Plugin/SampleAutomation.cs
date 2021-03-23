@@ -266,6 +266,8 @@ namespace DesignAutomationForInventor1Plugin
                             }
 
                             // Debugging
+                            dynamic defDoc = compOcc.Definition.Document;
+                            var occurrencePath = defDoc.FullFileName;
                             LogTrace("Path of added occurrence: {0}", occurrencePath);
                         }
                         catch (Exception e)
