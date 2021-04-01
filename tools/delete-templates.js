@@ -1,4 +1,4 @@
-const { listTemplates, deleteTemplate } = require('../common/templates.js');
+const { listTemplates, deleteTemplate } = require('../shared/templates.js');
 
 async function run() {
     const templates = await listTemplates();

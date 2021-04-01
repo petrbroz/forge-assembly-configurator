@@ -13,7 +13,7 @@ A simple, generic assembly configurator built using the [Autodesk Forge](https:/
 
 ### Folder structure
 
-- _common_ - the code for basic CRUD operations on "templates" and "projects"
+- _shared_ - the code for basic CRUD operations on "templates" and "projects"
 - _plugins_ - an Inventor plugin that is used to assemble parts
 - _server_ - a simple Express.js server providing a web interface for the configurator
   - _public_ - client side assets

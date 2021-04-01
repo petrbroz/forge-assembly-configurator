@@ -13,7 +13,7 @@ const {
     addTemplateModule,
     updateTemplateModule,
     deleteTemplate
-} = require('../../common/templates.js');
+} = require('../../shared/templates.js');
 
 let router = express.Router();
 let upload = multer({ dest: path.join(__dirname, '..', '..', 'cache', 'uploads') });

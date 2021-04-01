@@ -1,5 +1,5 @@
 const path = require('path');
-const { createTemplate, getTemplateAssets, addTemplateEnclosure, addTemplateModule, publishTemplate } = require('../common/templates.js');
+const { createTemplate, getTemplateAssets, addTemplateEnclosure, addTemplateModule, publishTemplate } = require('../shared/templates.js');
 
 async function run() {
     const name = 'Basic Template';

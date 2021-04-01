@@ -1,4 +1,4 @@
-const { listProjects, deleteProject } = require('../common/projects.js');
+const { listProjects, deleteProject } = require('../shared/projects.js');
 
 async function run() {
     const projects = await listProjects();

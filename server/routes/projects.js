@@ -11,7 +11,7 @@ const {
     getProjectLogs,
     getProjectThumbnail,
     getProjectOutput
-} = require('../../common/projects.js');
+} = require('../../shared/projects.js');
 
 let router = express.Router();
 let upload = multer({ dest: path.join(__dirname, '..', '..', 'cache', 'uploads') });
