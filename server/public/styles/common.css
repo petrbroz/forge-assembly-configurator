@@ -1,0 +1,21 @@
+@font-face {
+  font-family: "Artifakt";
+  src: url("../fonts/Artifakt_Element_Regular.woff2") format("woff2");
+}
+
+html,
+body {
+  font-family: Artifakt;
+}
+
+.navbar-brand > img {
+    height: 1.5em;
+}
+
+.breadcrumb {
+    background-color: white;
+}
+
+main {
+    padding-top: 2em;
+}

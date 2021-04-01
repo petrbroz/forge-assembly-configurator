@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles/common.css">
+    <link rel="stylesheet" href="/styles/projects.css">
+    <style>
+        .card>img {
+            padding: 1em;
+        }
+    </style>
+    <title>Autodesk Forge: Assembly Configurator</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">
+            <img src="/images/forge-logo.png" alt="Autodesk Forge">
+            <strong>Assembly Configurator</strong>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation"
+            aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navigation">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/projects.html">Projects</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/templates.html">Templates</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main role="main">
+        <div class="container">
+            <div class="row">
+                <div class="col-9">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item active" aria-current="page">Templates</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="float-right">
+                        <button id="create-template" class="btn btn-sm btn-primary" type="button" data-toggle="modal" data-target="#new-template-modal">New Template</button>
+                    </div>
+                </div>
+            </div>
+            <div id="templates" class="row">
+            </div>
+        </div>
+    </main>
+
+    <div id="new-template-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="new-template-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="/api/templates" class="modal-content" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 id="new-template-modal-label" class="modal-title">
+                        New Template
+                    </h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="template-title">
+                            Title
+                        </label>
+                        <input type="text" id="template-title" class="form-control" name="name" placeholder="Template title">
+                    </div>
+                    <div class="form-group">
+                        <label for="template-author">
+                            Author
+                        </label>
+                        <input type="text" id="template-author" class="form-control" name="author" placeholder="Template author">
+                    </div>
+                    <div class="form-group">
+                        <label for="template-assets">Assets</label>
+                        <div class="custom-file">
+                            <input type="file" name="assets" id="template-assets" class="custom-file-input">
+                            <label for="template-assets" class="custom-file-label">Choose a ZIP file</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"
+        integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF"
+        crossorigin="anonymous"></script>
+    <script type="module" src="/scripts/templates.js"></script>
+</body>
+
+</html>
