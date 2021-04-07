@@ -156,7 +156,7 @@ function setupDragDrop(template, viewer, container, state) {
                 model: null,
                 xform: null,
                 bbox: null,
-                connector: _module.connector,
+                connector: (_module.connector && _module.connector.length > 0) ? _module.connector : [0, 0, 0],
                 path: _module.asset_path
             };
             newModule.promise.then(model => {
