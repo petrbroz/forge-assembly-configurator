@@ -131,66 +131,68 @@
                                     <select class="col" name="connector-list" id="connector-list" size="6">
                                     </select>
                                 </div>
-                                <label>Position</label>
-                                <div class="row">
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-pos-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-pos-x" data-readonly-when="viewing">
+                                <div id="connector-props">
+                                    <label>Position</label>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-pos-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-pos-x" data-readonly-when="viewing">
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-pos-y" class="col-form-label col-form-label-sm col-sm-4">Y</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-pos-y" data-readonly-when="viewing">
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-pos-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-pos-z" data-readonly-when="viewing">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-pos-y" class="col-form-label col-form-label-sm col-sm-4">Y</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-pos-y" data-readonly-when="viewing">
+                                    <label>Grid Repeat</label>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-repeat-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-x" data-readonly-when="viewing">
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-repeat-y" class="col-form-label col-form-label-sm col-sm-4">Y</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-y" data-readonly-when="viewing">
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-repeat-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-z" data-readonly-when="viewing">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-pos-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-pos-z" data-readonly-when="viewing">
+                                    <label>Grid Offset</label>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-offset-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-x" data-readonly-when="viewing">
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <label>Grid Repeat</label>
-                                <div class="row">
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-repeat-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-x" data-readonly-when="viewing">
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-offset-y" class="col-form-label col-form-label-sm col-sm-4">Y</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-y" data-readonly-when="viewing">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-repeat-y" class="col-form-label col-form-label-sm col-sm-4">Y</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-y" data-readonly-when="viewing">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-repeat-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-z" data-readonly-when="viewing">
-                                        </div>
-                                    </div>
-                                </div>
-                                <label>Grid Offset</label>
-                                <div class="row">
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-offset-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-x" data-readonly-when="viewing">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-offset-y" class="col-form-label col-form-label-sm col-sm-4">Y</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-y" data-readonly-when="viewing">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-group row">
-                                            <label for="connector-offset-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
-                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-z" data-readonly-when="viewing">
+                                        <div class="col-4">
+                                            <div class="form-group row">
+                                                <label for="connector-offset-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
+                                                <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-z" data-readonly-when="viewing">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

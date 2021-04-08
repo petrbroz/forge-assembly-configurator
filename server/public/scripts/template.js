@@ -153,6 +153,7 @@ async function updateConnectorList() {
     }
 
     $connectors.off('change', onConnectorListSelectionChanged).on('change', onConnectorListSelectionChanged);
+    $('#connector-props').hide();
 }
 
 async function onComponentListSelectionChange(ev) {
@@ -173,6 +174,7 @@ async function onComponentListSelectionChange(ev) {
 }
 
 async function onConnectorListSelectionChanged(ev) {
+    $('#connector-props').show();
     const ext = viewer.getExtension('ConnectorEditExtension');
     const index = parseInt($(ev.target).val());
     const connector = ext.connectors[index];
@@ -206,15 +208,15 @@ async function onConnectorListSelectionChanged(ev) {
     }
 
     function update() {
-        connector.transform[3] = $x.val();
-        connector.transform[7] = $y.val();
-        connector.transform[11] = $z.val();
-        connector.grid.repeat[0] = $rx.val();
-        connector.grid.repeat[1] = $ry.val();
-        connector.grid.repeat[2] = $rz.val();
-        connector.grid.offset[0] = $ox.val();
-        connector.grid.offset[1] = $oy.val();
-        connector.grid.offset[2] = $oz.val();
+        connector.transform[3] = parseFloat($x.val());
+        connector.transform[7] = parseFloat($y.val());
+        connector.transform[11] = parseFloat($z.val());
+        connector.grid.repeat[0] = parseInt($rx.val());
+        connector.grid.repeat[1] = parseInt($ry.val());
+        connector.grid.repeat[2] = parseInt($rz.val());
+        connector.grid.offset[0] = parseFloat($ox.val());
+        connector.grid.offset[1] = parseFloat($oy.val());
+        connector.grid.offset[2] = parseFloat($oz.val());
         ext.updateOverlay();
     }
     for (const el of [$x, $y, $z, $rx, $ry, $rz, $ox, $oy, $oz]) {
