@@ -8,6 +8,7 @@ import {
     updateTemplateModule,
     showAlert
 } from './api-utilities.js';
+import { updateLoginUI } from './user-utilities.js';
 
 const state = {
     modules: [],
@@ -16,6 +17,8 @@ const state = {
 let viewer = null;
 
 $(async function () {
+    updateLoginUI();
+
     const id = new URLSearchParams(window.location.search).get('id');
     if (!id) {
         showAlert('Error', 'Missing template ID.');

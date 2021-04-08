@@ -1,9 +1,10 @@
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
-const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET } = process.env;
-if (!FORGE_CLIENT_ID || !FORGE_CLIENT_SECRET || !FORGE_BUCKET) {
-    console.warn('Missing environment variables FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, or FORGE_BUCKET.');
+const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, FORGE_CALLBACK_URL, SERVER_SESSION_SECRET } = process.env;
+if (!FORGE_CLIENT_ID || !FORGE_CLIENT_SECRET || !FORGE_BUCKET || !FORGE_CALLBACK_URL || !SERVER_SESSION_SECRET) {
+    console.warn('Some of the environment variables are missing:');
+    console.warn('FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, FORGE_CALLBACK_URL, SERVER_SESSION_SECRET')
     process.exit(1);
 }
 
@@ -11,6 +12,8 @@ module.exports = {
     FORGE_CLIENT_ID,
     FORGE_CLIENT_SECRET,
     FORGE_BUCKET,
+    FORGE_CALLBACK_URL,
+    SERVER_SESSION_SECRET,
     PORT,
     INVENTOR_PIPELINE: {
         DESCRIPTION: 'App bundle assembling Inventor parts based on a specific layout.',

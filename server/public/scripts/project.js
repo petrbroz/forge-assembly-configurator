@@ -1,5 +1,6 @@
 import { initializeViewer, loadModel } from './viewer-utilities.js';
 import { deleteProject, getProject, getTemplate, showAlert } from './api-utilities.js';
+import { updateLoginUI } from './user-utilities.js';
 
 const state = {
     modules: []
@@ -9,6 +10,8 @@ let viewer = null;
 let urn = null;
 
 $(async function () {
+    updateLoginUI();
+
     const id = new URLSearchParams(window.location.search).get('id');
     if (!id) {
         showAlert('Error', 'Missing project ID.');

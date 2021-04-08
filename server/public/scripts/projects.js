@@ -1,6 +1,8 @@
 import { deleteProject, listProjects, listTemplates, showAlert } from './api-utilities.js';
+import { updateLoginUI, userLoggedIn } from './user-utilities.js';
 
 $(function () {
+    updateLoginUI();
     updateProjects();
     updateTemplates();
 });
@@ -33,7 +35,7 @@ async function updateProjects() {
                     </div>
                     <div class="card-footer">
                         <a href="/project.html?id=${project.id}" class="btn btn-sm btn-outline-primary">${project.status ? 'View' : 'Edit'}</a>
-                        <a href="#" data-remove-id="${project.id}" class="btn btn-sm btn-outline-danger">Remove</a>
+                        ${userLoggedIn() ? `<a href="#" data-remove-id="${project.id}" class="btn btn-sm btn-outline-danger">Remove</a>` : ``}
                     </div>
                 </div>
             </div>
