@@ -63,6 +63,9 @@
 
     <main role="main">
         <div class="container">
+
+            <!-- Breadcrumbs & action buttons -->
+
             <div class="row">
                 <div class="col-8">
                     <nav aria-label="breadcrumb">
@@ -80,6 +83,9 @@
                 </div>
             </div>
             <div class="row">
+
+                <!-- Preview -->
+
                 <div class="col-md-9 pb-3">
                     <ul class="nav nav-tabs" id="main-tabs" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -93,6 +99,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Sidebar -->
+
                 <div id="sidebar" class="col-md-3 pb-3">
                     <ul class="nav nav-tabs" id="sidebar-tabs" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -106,24 +115,24 @@
                     </ul>
                     <div class="tab-content pt-3">
                         <div class="tab-pane active" id="components" role="tabpanel" aria-labelledby="components-tab">
-                            <label>Components</label>
+                            <label>Modules</label>
                             <div class="row">
                                 <select class="col" name="component-list" id="component-list" size="6">
                                 </select>
                             </div>
                             <div class="row" data-hidden-when="viewing">
                                 <div class="col p-2 d-flex justify-content-end">
-                                    <button id="add-enclosure" type="button" class="btn btn-sm btn-secondary m-1" data-toggle="modal" data-target="#new-enclosure-modal">Add Enclosure</button>
                                     <button id="add-module" type="button" class="btn btn-sm btn-secondary m-1" data-toggle="modal" data-target="#new-module-modal">Add Module</button>
                                 </div>
                             </div>
                             <div id="connectors">
                                 <label class="pt-2">Connectors</label>
-                                <div class="row">
+                                <div class="row pb-2">
                                     <select class="col" name="connector-list" id="connector-list" size="6">
                                     </select>
                                 </div>
-                                <div class="row pt-2">
+                                <label>Position</label>
+                                <div class="row">
                                     <div class="col-4">
                                         <div class="form-group row">
                                             <label for="connector-pos-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
@@ -140,6 +149,48 @@
                                         <div class="form-group row">
                                             <label for="connector-pos-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
                                             <input type="text" class="form-control form-control-sm col-sm-8" id="connector-pos-z" data-readonly-when="viewing">
+                                        </div>
+                                    </div>
+                                </div>
+                                <label>Grid Repeat</label>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group row">
+                                            <label for="connector-repeat-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
+                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-x" data-readonly-when="viewing">
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group row">
+                                            <label for="connector-repeat-y" class="col-form-label col-form-label-sm col-sm-4">Y</label>
+                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-y" data-readonly-when="viewing">
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group row">
+                                            <label for="connector-repeat-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
+                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-repeat-z" data-readonly-when="viewing">
+                                        </div>
+                                    </div>
+                                </div>
+                                <label>Grid Offset</label>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group row">
+                                            <label for="connector-offset-x" class="col-form-label col-form-label-sm col-sm-4">X</label>
+                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-x" data-readonly-when="viewing">
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group row">
+                                            <label for="connector-offset-y" class="col-form-label col-form-label-sm col-sm-4">Y</label>
+                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-y" data-readonly-when="viewing">
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group row">
+                                            <label for="connector-offset-z" class="col-form-label col-form-label-sm col-sm-4">Z</label>
+                                            <input type="text" class="form-control form-control-sm col-sm-8" id="connector-offset-z" data-readonly-when="viewing">
                                         </div>
                                     </div>
                                 </div>
@@ -171,35 +222,6 @@
     </main>
 
     <!-- Modals -->
-
-    <div id="new-enclosure-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="new-enclosure-modal-label" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="new-enclosure-modal-label" class="modal-title">
-                        New Enclosure
-                    </h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="new-enclosure-name">Name</label>
-                        <input type="text" id="new-enclosure-name" class="form-control" type="text" name="name" placeholder="Enclosure name">
-                    </div>
-                    <div class="form-group">
-                        <label for="available-enclosures">Available assets</label>
-                        <select name="available-enclosures" id="available-enclosures" class="form-control"></select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
-                    <button id="create-enclosure" class="btn btn-primary">Create</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div id="new-module-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="new-module-modal-label" aria-hidden="true">
         <div class="modal-dialog" role="document">

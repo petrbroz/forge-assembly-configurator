@@ -5,13 +5,53 @@ const AdmZip = require('adm-zip');
 const { DataManagementClient, ModelDerivativeClient, urnify, ThumbnailSize } = require('forge-server-utils');
 const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET } = require('../config.js');
 
+/*
+
+_Template_ represents a collection of 3D modules with custom snapping points
+that can be used to create different configurations by instantiating and snapping
+these modules together.
+
+In this implementation, templates are defined in JSON files stored in an OSS bucket
+in the Forge Data Management service. The JSON looks like this:
+
+{
+    "id": <string>,                 // UUID for uniquely identifying the template
+    "name": <string>,               // Display name
+    "author": <string>,             // Template author name
+    "created": <string>,            // Created date
+    "public": <bolean>,             // Whether or not the template has been published (only public templates can be used to create new configurations),
+    "shared_assets": <string>,      // Name of ZIP file uploaded to Forge that contains shared 3D assets (which can be referenced by different modules below)
+    "modules": [                    // List of modules with their snapping points
+        {
+            "id": <string>,                 // UUID for uniquely identifying the module
+            "name": <string>,               // Display name
+            "shared_assets_path": <string>, // Path to one of the 3D assets in the shared ZIP file defined at the template level
+            "urn": <string>,                // URN of this module in the Forge Model Derivative service
+            "transform": <number[]>,        // Optional 4x4 transform placing the module to a frame where the (0,0,0) origin will be used for snapping to other modules
+            "connectors": [
+                {
+                    "transform": <number[]>,        // 4x4 transform to apply to any moduel snapped to this connector
+                    "grid": {                       // Optional definition of a grid of snapping points
+                        "repeat": <number[]>,       // Array of 3 values representing the number of snapping points to replicate in X, Y, and Z direction
+                        "offset": <number[]>        // Array of 3 values representing the offsets between snapping points in X, Y, and Z direction
+                    }
+                },
+                ...
+            ]
+        },
+        ...
+    ]
+}
+
+*/
+
 const CacheFolder = path.join(__dirname, '..', 'cache', 'templates');
 fs.ensureDirSync(CacheFolder);
 
 let dataManagementClient = new DataManagementClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 let modelDerivativeClient = new ModelDerivativeClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 
-async function createTemplate(name, author, assetsPath) {
+async function createTemplate(name, author, sharedAssetsFilename) {
     const id = uuid();
     fs.ensureDirSync(path.join(CacheFolder, id));
     const template = {
@@ -20,11 +60,13 @@ async function createTemplate(name, author, assetsPath) {
         author,
         created: new Date(),
         public: false,
-        enclosures: [],
         modules: []
     };
+    if (sharedAssetsFilename) {
+        const sharedAssetsObject = await dataManagementClient.uploadObjectStream(FORGE_BUCKET, `templates/${id}/assets.zip`, 'application/octet-stream', fs.createReadStream(sharedAssetsFilename));
+        template.shared_assets = sharedAssetsObject.objectKey;
+    }
     await dataManagementClient.uploadObject(FORGE_BUCKET, `templates/${id}/template.json`, 'application/json', JSON.stringify(template));
-    await dataManagementClient.uploadObjectStream(FORGE_BUCKET, `templates/${id}/assets.zip`, 'application/octet-stream', fs.createReadStream(assetsPath));
     return template;
 }
 
@@ -40,60 +82,6 @@ async function getTemplate(id) {
         return template;
     } else {
         return fs.readJsonSync(templateCachePath);
-    }
-}
-
-async function getTemplateAssets(id) {
-    const assetsCachePath = path.join(CacheFolder, id, 'assets.zip');
-    if (!fs.existsSync(assetsCachePath)) {
-        const buff = await dataManagementClient.downloadObject(FORGE_BUCKET, `templates/${id}/assets.zip`);
-        fs.writeFileSync(assetsCachePath, buff);
-    }
-    const entries = new AdmZip(assetsCachePath).getEntries();
-    return entries.map(entry => entry.entryName).filter(entry => !entry.startsWith('__MACOSX'));
-}
-
-async function getTemplateEnclosureThumbnail(templateId, enclosureId) {
-    const thumbnailCachePath = path.join(CacheFolder, templateId, `enclosure.${enclosureId}.png`);
-    if (!fs.existsSync(thumbnailCachePath)) {
-        const template = await getTemplate(templateId);
-        if (!template) {
-            return null;
-        }
-        const enclosure = template.enclosures.find(e => e.id === enclosureId);
-        if (!enclosure || !enclosure.urn) {
-            return null;
-        }
-        const buff = await modelDerivativeClient.getThumbnail(enclosure.urn, ThumbnailSize.Medium);
-        // Only cache the thumbnail when the template has already been published
-        if (template.public) {
-            fs.writeFileSync(thumbnailCachePath, buff);
-        }
-        return buff;
-    } else {
-        return fs.readFileSync(thumbnailCachePath);
-    }
-}
-
-async function getTemplateModuleThumbnail(templateId, moduleId) {
-    const thumbnailCachePath = path.join(CacheFolder, templateId, `module.${moduleId}.png`);
-    if (!fs.existsSync(thumbnailCachePath)) {
-        const template = await getTemplate(templateId);
-        if (!template) {
-            return null;
-        }
-        const module = template.modules.find(e => e.id === moduleId);
-        if (!module || !module.urn) {
-            return null;
-        }
-        const buff = await modelDerivativeClient.getThumbnail(module.urn, ThumbnailSize.Medium);
-        // Only cache the thumbnail when the template has already been published
-        if (template.public) {
-            fs.writeFileSync(thumbnailCachePath, buff);
-        }
-        return buff;
-    } else {
-        return fs.readFileSync(thumbnailCachePath);
     }
 }
 
@@ -118,7 +106,17 @@ async function deleteTemplate(id) {
     }
 }
 
-async function addTemplateEnclosure(id, name, assetPath, connectors) {
+async function getTemplateSharedAssets(id) {
+    const assetsCachePath = path.join(CacheFolder, id, 'assets.zip');
+    if (!fs.existsSync(assetsCachePath)) {
+        const buff = await dataManagementClient.downloadObject(FORGE_BUCKET, `templates/${id}/assets.zip`);
+        fs.writeFileSync(assetsCachePath, buff);
+    }
+    const entries = new AdmZip(assetsCachePath).getEntries();
+    return entries.map(entry => entry.entryName).filter(entry => !entry.startsWith('__MACOSX'));
+}
+
+async function addTemplateModule(id, name, sharedAssetsPath, transform, connectors) {
     const template = await getTemplate(id);
     if (!template) {
         throw new Error('Template does not exist.')
@@ -127,46 +125,16 @@ async function addTemplateEnclosure(id, name, assetPath, connectors) {
         throw new Error('Template has been published and cannot be modified anymore.');
     }
 
-    const assetsCopy = await dataManagementClient.copyObject(FORGE_BUCKET, `templates/${id}/assets.zip`, `templates/${id}/assets.zip?${assetPath}`);
-    const enclosure = { id: uuid(), name, asset_path: assetPath, connectors, urn: urnify(assetsCopy.objectId) };
-    modelDerivativeClient.submitJob(enclosure.urn, [{ type: 'svf', views: ['3d'] }], assetPath);
-
-    template.enclosures.push(enclosure);
-    await dataManagementClient.uploadObject(FORGE_BUCKET, `templates/${id}/template.json`, 'application/json', JSON.stringify(template));
-
-    return enclosure;
-}
-
-async function updateTemplateEnclosure(templateId, enclosureId, connectors) {
-    const template = await getTemplate(templateId);
-    if (!template) {
-        throw new Error('Template does not exist.')
-    }
-    if (template.public) {
-        throw new Error('Template has been published and cannot be modified anymore.');
-    }
-    const enclosure = template.enclosures.find(e => e.id === enclosureId);
-    if (!enclosure) {
-        throw new Error('Enclosure does not exist.');
-    }
-    enclosure.connectors = connectors;
-    await dataManagementClient.uploadObject(FORGE_BUCKET, `templates/${templateId}/template.json`, 'application/json', JSON.stringify(template));
-
-    return enclosure;
-}
-
-async function addTemplateModule(id, name, assetPath, connector) {
-    const template = await getTemplate(id);
-    if (!template) {
-        throw new Error('Template does not exist.')
-    }
-    if (template.public) {
-        throw new Error('Template has been published and cannot be modified anymore.');
-    }
-
-    const assetsCopy = await dataManagementClient.copyObject(FORGE_BUCKET, `templates/${id}/assets.zip`, `templates/${id}/assets.zip?${assetPath}`);
-    const module = { id: uuid(), name, asset_path: assetPath, connector, urn: urnify(assetsCopy.objectId) };
-    modelDerivativeClient.submitJob(module.urn, [{ type: 'svf', views: ['3d'] }], assetPath);
+    const assetsCopy = await dataManagementClient.copyObject(FORGE_BUCKET, `templates/${id}/assets.zip`, `templates/${id}/assets.zip?${sharedAssetsPath}`);
+    const module = {
+        id: uuid(),
+        name,
+        shared_assets_path: sharedAssetsPath,
+        urn: urnify(assetsCopy.objectId),
+        transform,
+        connectors
+    };
+    modelDerivativeClient.submitJob(module.urn, [{ type: 'svf', views: ['3d'] }], sharedAssetsPath);
 
     template.modules.push(module);
     await dataManagementClient.uploadObject(FORGE_BUCKET, `templates/${id}/template.json`, 'application/json', JSON.stringify(template));
@@ -174,7 +142,7 @@ async function addTemplateModule(id, name, assetPath, connector) {
     return module;
 }
 
-async function updateTemplateModule(templateId, moduleId, connector) {
+async function updateTemplateModule(templateId, moduleId, transform, connectors) {
     const template = await getTemplate(templateId);
     if (!template) {
         throw new Error('Template does not exist.')
@@ -182,14 +150,40 @@ async function updateTemplateModule(templateId, moduleId, connector) {
     if (template.public) {
         throw new Error('Template has been published and cannot be modified anymore.');
     }
-    const mod = template.modules.find(e => e.id === moduleId);
-    if (!mod) {
+    const _module = template.modules.find(e => e.id === moduleId);
+    if (!_module) {
         throw new Error('Module does not exist.');
     }
-    mod.connector = connector;
+    if (transform) {
+        _module.transform = transform;
+    }
+    if (connectors) {
+        _module.connectors = connectors;
+    }
     await dataManagementClient.uploadObject(FORGE_BUCKET, `templates/${templateId}/template.json`, 'application/json', JSON.stringify(template));
+    return _module;
+}
 
-    return mod;
+async function getTemplateModuleThumbnail(templateId, moduleId) {
+    const thumbnailCachePath = path.join(CacheFolder, templateId, `module.${moduleId}.png`);
+    if (!fs.existsSync(thumbnailCachePath)) {
+        const template = await getTemplate(templateId);
+        if (!template) {
+            return null;
+        }
+        const module = template.modules.find(e => e.id === moduleId);
+        if (!module || !module.urn) {
+            return null;
+        }
+        const buff = await modelDerivativeClient.getThumbnail(module.urn, ThumbnailSize.Medium);
+        // Only cache the thumbnail when the template has already been published
+        if (template.public) {
+            fs.writeFileSync(thumbnailCachePath, buff);
+        }
+        return buff;
+    } else {
+        return fs.readFileSync(thumbnailCachePath);
+    }
 }
 
 async function publishTemplate(id) {
@@ -209,13 +203,10 @@ async function publishTemplate(id) {
 module.exports = {
     createTemplate,
     getTemplate,
-    getTemplateAssets,
-    getTemplateEnclosureThumbnail,
+    getTemplateSharedAssets,
     getTemplateModuleThumbnail,
     listTemplates,
     deleteTemplate,
-    addTemplateEnclosure,
-    updateTemplateEnclosure,
     addTemplateModule,
     updateTemplateModule,
     publishTemplate

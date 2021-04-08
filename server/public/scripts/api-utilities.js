@@ -50,44 +50,6 @@ export async function getTemplateAssets(templateId) {
     return assets;
 }
 
-export async function getTemplateEnclosures(templateId) {
-    const resp = await fetch(`/api/templates/${templateId}/enclosures`);
-    if (!resp.ok) {
-        throw new Error(await resp.text());
-    }
-    const enclosures = await resp.json();
-    return enclosures;
-}
-
-export async function addTemplateEnclosure(templateId, name, assetPath, connectors) {
-    const resp = await fetch(`/api/templates/${templateId}/enclosures`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            name,
-            asset: assetPath,
-            connectors,
-        })
-    });
-    const enclosure = await resp.json();
-    return enclosure;
-}
-
-export async function updateTemplateEnclosure(templateId, enclosureId, connectors) {
-    const resp = await fetch(`/api/templates/${templateId}/enclosures/${enclosureId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ connectors })
-    });
-    if (!resp.ok) {
-        throw new Error(await resp.text());
-    }
-    const enclosure = await resp.json();
-    return enclosure;
-}
-
 export async function getTemplateModules(templateId) {
     const resp = await fetch(`/api/templates/${templateId}/modules`);
     if (!resp.ok) {
@@ -97,7 +59,7 @@ export async function getTemplateModules(templateId) {
     return modules;
 }
 
-export async function addTemplateModule(templateId, name, assetPath, connectors) {
+export async function addTemplateModule(templateId, name, assetPath, transform, connectors) {
     const resp = await fetch(`/api/templates/${templateId}/modules`, {
         method: 'POST',
         headers: {
@@ -105,7 +67,8 @@ export async function addTemplateModule(templateId, name, assetPath, connectors)
         },
         body: JSON.stringify({
             name,
-            asset: assetPath,
+            shared_assets_path: assetPath,
+            transform,
             connectors,
         })
     });
@@ -113,11 +76,11 @@ export async function addTemplateModule(templateId, name, assetPath, connectors)
     return _module;
 }
 
-export async function updateTemplateModule(templateId, moduleId, connector) {
+export async function updateTemplateModule(templateId, moduleId, transform, connectors) {
     const resp = await fetch(`/api/templates/${templateId}/modules/${moduleId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ connector })
+        body: JSON.stringify({ transform, connectors })
     });
     if (!resp.ok) {
         throw new Error(await resp.text());

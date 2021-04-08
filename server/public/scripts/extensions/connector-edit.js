@@ -5,12 +5,11 @@ class ConnectorEditExtension extends Autodesk.Viewing.Extension {
         this._button = null;
         this._active = false;
         this._controls = null;
-        this._connectors = {};
-        this._selectedConnector = null;
+        this._connectors = [];
         this._connectorGeometry = new THREE.SphereGeometry(options && options.connectorSize || 0.5, 4, 4);
         this._connectorMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         this._onClick = this.onClick.bind(this);
-        this._onControlsChange = this.onControlsChange.bind(this);
+        //this._onControlsChange = this.onControlsChange.bind(this);
         this._listeners = new Map();
     }
 
@@ -18,7 +17,7 @@ class ConnectorEditExtension extends Autodesk.Viewing.Extension {
         this.viewer.overlays.addScene('connectors');
         this.viewer.container.addEventListener('click', this._onClick);
         this._controls = new THREE.TransformControls(this.viewer.impl.camera, this.viewer.canvas, 'translate');
-        this._controls.addEventListener('change', this._onControlsChange);
+        //this._controls.addEventListener('change', this._onControlsChange);
         this.viewer.impl.addOverlay('connectors', this._controls);
         console.log('ConnectorEditExtension loaded.');
         return true;
@@ -32,31 +31,39 @@ class ConnectorEditExtension extends Autodesk.Viewing.Extension {
     }
 
     get connectors() {
-        const result = {};
-        for (const key in this._connectors) {
-            const pos = this._connectors[key].position;
-            result[key] = [pos.x, pos.y, pos.z];
-        }
-        return result;
+        return this._connectors;
     }
 
     set connectors(value) {
-        this._connectors = {};
-        for (const key in value) {
-            const pos = value[key];
-            const mesh = new THREE.Mesh(this._connectorGeometry, this._connectorMaterial);
-            mesh.position.set(pos[0], pos[1], pos[2]);
-            this.viewer.overlays.addMesh(mesh, 'connectors');
-            this._connectors[key] = {
-                mesh,
-                position: {
-                    x: pos[0],
-                    y: pos[1],
-                    z: pos[2]
-                }
-            };
-        }
+        this._connectors = value;
+        this.updateOverlay();
         this.triggerEvent('connectors-changed', {});
+    }
+
+    updateOverlay() {
+        this.viewer.overlays.clearScene('connectors');
+        for (const connector of this._connectors) {
+            const group = new THREE.Group();
+            if (connector.grid) {
+                for (let z = 0; z < connector.grid.repeat[2]; z++) {
+                    for (let y = 0; y < connector.grid.repeat[1]; y++) {
+                        for (let x = 0; x < connector.grid.repeat[0]; x++) {
+                            const mesh = new THREE.Mesh(this._connectorGeometry, this._connectorMaterial);
+                            mesh.position.x = x * connector.grid.offset[0];
+                            mesh.position.y = y * connector.grid.offset[1];
+                            mesh.position.z = z * connector.grid.offset[2];
+                            group.add(mesh);
+                        }
+                    }
+                }
+            } else {
+                const mesh = new THREE.Mesh(this._connectorGeometry, this._connectorMaterial);
+                group.add(mesh);
+            }
+            group.position.set(connector.transform[3], connector.transform[7], connector.transform[11]);
+            this.viewer.overlays.addMesh(group, 'connectors');
+        }
+        this.viewer.impl.invalidate(true, false, true);
     }
 
     onToolbarCreated() {
@@ -98,49 +105,6 @@ class ConnectorEditExtension extends Autodesk.Viewing.Extension {
         }
     }
 
-    onControlsChange(ev) {
-        console.log('change', ev);
-        this.viewer.impl.invalidate(false, false, true);
-    }
-
-    selectConnector(name) {
-        const connector = this._connectors[name];
-        if (connector) {
-            this._selectedConnector = connector;
-            // this._controls.attach(connector.mesh);
-            // this.viewer.impl.invalidate(false, false, true);
-            return [connector.position.x, connector.position.y, connector.position.z];
-        } else {
-            this._selectedConnector = null;
-            // this._controls.dettach();
-            return null;
-        }
-    }
-
-    updateConnector(name, x, y, z) {
-        const connector = this._connectors[name];
-        if (connector) {
-            connector.position.x = connector.mesh.position.x = x;
-            connector.position.y = connector.mesh.position.y = y;
-            connector.position.z = connector.mesh.position.z = z;
-            this.viewer.impl.invalidate(false, false, true);
-        }
-    }
-
-    // onPanelClick(ev) {
-    //     const connector = this._connectors[ev.name];
-    //     if (connector) {
-    //         this._selectedConnector = connector;
-    //         this._controls.attach(connector.mesh);
-    //         //this._controls.setPosition(connector.mesh.position);
-    //         //this._controls.visible = true;
-    //         this.viewer.impl.invalidate(false, false, true);
-    //     } else {
-    //         this._selectedConnector = null;
-    //         this._controls.dettach();
-    //     }
-    // }
-
     onClick(ev) {
         if (!this._active) {
             return;
@@ -148,18 +112,19 @@ class ConnectorEditExtension extends Autodesk.Viewing.Extension {
         const rect = this.viewer.container.getBoundingClientRect();
         const hit = this.viewer.hitTest(ev.clientX - rect.left, ev.clientY - rect.top);
         if (hit) {
-            const mesh = new THREE.Mesh(this._connectorGeometry, this._connectorMaterial);
-            mesh.position.set(hit.point.x, hit.point.y, hit.point.z);
-            const index = Object.keys(this._connectors).length;
-            this._connectors[`snap${index}`] = {
-                position: {
-                    x: hit.point.x,
-                    y: hit.point.y,
-                    z: hit.point.z
-                },
-                mesh: mesh
-            };
-            this.viewer.overlays.addMesh(mesh, 'connectors');
+            this._connectors.push({
+                transform: [
+                    1, 0, 0, hit.point.x,
+                    0, 1, 0, hit.point.y,
+                    0, 0, 1, hit.point.z,
+                    0, 0, 0, 1
+                ],
+                grid: {
+                    repeat: [1, 1, 1],
+                    offset: [0, 0, 0]
+                }
+            });
+            this.updateOverlay();
             this.triggerEvent('connectors-changed', {});
         }
     }

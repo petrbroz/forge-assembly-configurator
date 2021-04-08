@@ -3,9 +3,6 @@ import {
     getTemplate,
     deleteTemplate,
     getTemplateAssets,
-    getTemplateEnclosures,
-    addTemplateEnclosure,
-    updateTemplateEnclosure,
     getTemplateModules,
     addTemplateModule,
     updateTemplateModule,
@@ -13,12 +10,9 @@ import {
 } from './api-utilities.js';
 
 const state = {
-    enclosures: [],
     modules: [],
-    selected: null,
-    connectors: []
+    selected: null
 };
-
 let viewer = null;
 
 $(async function () {
@@ -30,13 +24,11 @@ $(async function () {
 
     try {
         const template = await getTemplate(id);
-        state.enclosures = template.enclosures;
         state.modules = template.modules;
+        initGeneralUI(template);
         if (template.public) {
-            initGeneralUI(template);
             initViewingUI(template);
         } else {
-            initGeneralUI(template);
             initEditingUI(template);
         }
     } catch (err) {
@@ -60,26 +52,15 @@ async function initGeneralUI(template) {
     });
     $('#save-connectors').click(async function () {
         const ext = viewer.getExtension('ConnectorEditExtension');
-        const connectors = ext.connectors;
-        const id = state.selected.id;
-        if (state.enclosures.find(e => e.id === id)) {
-            try {
-                await updateTemplateEnclosure(template.id, id, connectors);
-            } catch (err) {
-                showAlert('Error', 'Could not update enclosure: ' + err);
-            }
-        } else {
-            try {
-                // modules expect a single connector
-                const connector = connectors[Object.keys(connectors)[0]];
-                await updateTemplateModule(template.id, id, connector);
-            } catch (err) {
-                showAlert('Error', 'Could not update module: ' + err);
-            }
+        try {
+            // modules expect a single connector
+            await updateTemplateModule(template.id, state.selected.id, null, ext.connectors);
+        } catch (err) {
+            showAlert('Error', 'Could not update module: ' + err);
         }
     });
     initModals(template);
-    updateComponentList(template);
+    updateModuleList(template);
 }
 
 async function initViewingUI(template) {
@@ -111,62 +92,38 @@ async function initEditingUI(template) {
 }
 
 async function initModals(template) {
-    const $availableEnclosures = $('#available-enclosures');
     const $availableModules = $('#available-modules');
-
-    $availableEnclosures.empty();
     $availableModules.empty();
     const assets = await getTemplateAssets(template.id);
     for (const asset of assets) {
-        $availableEnclosures.append(`
-            <option value="${asset}">${asset}</option>
-        `);
         $availableModules.append(`
             <option value="${asset}">${asset}</option>
         `);
     }
 
-    $('#create-enclosure').click(async function () {
-        $('#new-enclosure-modal').modal('hide');
-        await addTemplateEnclosure(template.id, $('#new-enclosure-name').val(), $availableEnclosures.val(), []);
-        window.location.reload();
-    });
     $('#create-module').click(async function () {
         $('#new-module-modal').modal('hide');
-        await addTemplateModule(template.id, $('#new-module-name').val(), $availableModules.val(), []);
+        await addTemplateModule(template.id, $('#new-module-name').val(), $availableModules.val(), null, []);
         window.location.reload();
     });
 }
 
-async function updateComponentList(template) {
+async function updateModuleList(template) {
     const $components = $('#component-list');
     $components.empty();
-
     try {
-        state.enclosures = await getTemplateEnclosures(template.id);
         state.modules = await getTemplateModules(template.id);
     } catch (err) {
-        showAlert('Error', 'Could not retrieve template enclosures or modules: ' + err);
+        showAlert('Error', 'Could not retrieve template modules: ' + err);
         return;
     }
 
     let needsRefresh = false;
-    for (const enclosure of state.enclosures) {
-        if (enclosure.urn) {
-            $components.append(`
-                <option value="${enclosure.id}" data-type="enclosure" data-urn="${enclosure.urn}">${enclosure.name} (enclosure)</option>
-            `);
-        } else {
-            $components.append(`
-                <option value="${enclosure.id}" data-type="enclosure" data-urn="" disabled>${enclosure.name} (processing...)</option>
-            `);
-            needsRefresh = true;
-        }
-    }
     for (const _module of state.modules) {
+        // TODO: instead of checking the existence of URN, check the Model Derivative manifest instead
         if (_module.urn) {
             $components.append(`
-                <option value="${_module.id}" data-type="module" data-urn="${_module.urn}">${_module.name} (module)</option>
+                <option value="${_module.id}" data-type="module" data-urn="${_module.urn}">${_module.name}</option>
             `);
         } else {
             $components.append(`
@@ -179,7 +136,7 @@ async function updateComponentList(template) {
     $components.off('change', onComponentListSelectionChange).on('change', onComponentListSelectionChange);
 
     if (needsRefresh) {
-        setTimeout(updateComponentList, 5000, template);
+        setTimeout(updateModuleList, 5000, template);
     }
 }
 
@@ -188,11 +145,10 @@ async function updateConnectorList() {
     $connectors.empty();
 
     const ext = viewer.getExtension('ConnectorEditExtension');
-    state.connectors = ext.connectors;
-    for (const key in state.connectors) {
-        const pos = state.connectors[key];
+    const connectors = ext.connectors;
+    for (let i = 0; i < connectors.length; i++) {
         $connectors.append(`
-            <option value="${key}" data-x="${pos[0]}" data-y="${pos[1]}" data-z="${pos[2]}">${key}</option>
+            <option value="${i}">Connector #${i}</option>
         `);
     }
 
@@ -201,43 +157,67 @@ async function updateConnectorList() {
 
 async function onComponentListSelectionChange(ev) {
     const id = $(ev.target).val();
-    const matchingEnclosure = state.enclosures.find(e => e.id === id);
-    const matchingModule = state.modules.find(m => m.id === id);
-    state.selected = matchingEnclosure || matchingModule;
-
-    if (matchingEnclosure) {
-        $('#connectors').show();
-    } else {
-        $('#connectors').hide();
-    }
+    state.selected = state.modules.find(m => m.id === id);
 
     if (state.selected) {
-        if (state.selected.urn) {
-            await loadModel(viewer, state.selected.urn, { keepCurrentModels: false, applyScaling: 'cm', globalOffset: new THREE.Vector3(0, 0, 0) });
-            const ext = await viewer.loadExtension('ConnectorEditExtension');
-            ext.addEventListener('connectors-changed', function (ev) {
-                updateConnectorList();
-            });
-            ext.connectors = state.selected.connectors || {};
-        }
+        $('#connectors').show();
+        await loadModel(viewer, state.selected.urn, { keepCurrentModels: false, applyScaling: 'cm', globalOffset: new THREE.Vector3(0, 0, 0) });
+        const ext = await viewer.loadExtension('ConnectorEditExtension');
+        ext.addEventListener('connectors-changed', function (ev) {
+            updateConnectorList();
+        });
+        ext.connectors = state.selected.connectors || [];
+    } else {
+        $('#connectors').hide();
     }
 }
 
 async function onConnectorListSelectionChanged(ev) {
     const ext = viewer.getExtension('ConnectorEditExtension');
-    const name = $(ev.target).val();
-    const connector = ext.selectConnector(name);
+    const index = parseInt($(ev.target).val());
+    const connector = ext.connectors[index];
     const $x = $('#connector-pos-x');
     const $y = $('#connector-pos-y');
     const $z = $('#connector-pos-z');
-    $x.val(connector[0]);
-    $y.val(connector[1]);
-    $z.val(connector[2]);
+    const $rx = $('#connector-repeat-x');
+    const $ry = $('#connector-repeat-y');
+    const $rz = $('#connector-repeat-z');
+    const $ox = $('#connector-offset-x');
+    const $oy = $('#connector-offset-y');
+    const $oz = $('#connector-offset-z');
+    // For now we only support editing the position, not the entire 4x4 transform
+    $x.val(connector.transform[3]);
+    $y.val(connector.transform[7]);
+    $z.val(connector.transform[11]);
+    if (connector.grid) {
+        $rx.val(connector.grid.repeat[0]);
+        $ry.val(connector.grid.repeat[1]);
+        $rz.val(connector.grid.repeat[2]);
+        $ox.val(connector.grid.offset[0]);
+        $oy.val(connector.grid.offset[1]);
+        $oz.val(connector.grid.offset[2]);
+    } else {
+        $rx.val(1);
+        $ry.val(1);
+        $rz.val(1);
+        $ox.val(0);
+        $oy.val(0);
+        $oz.val(0);
+    }
 
     function update() {
-        ext.updateConnector(name, parseFloat($x.val()), parseFloat($y.val()), parseFloat($z.val()));
+        connector.transform[3] = $x.val();
+        connector.transform[7] = $y.val();
+        connector.transform[11] = $z.val();
+        connector.grid.repeat[0] = $rx.val();
+        connector.grid.repeat[1] = $ry.val();
+        connector.grid.repeat[2] = $rz.val();
+        connector.grid.offset[0] = $ox.val();
+        connector.grid.offset[1] = $oy.val();
+        connector.grid.offset[2] = $oz.val();
+        ext.updateOverlay();
     }
-    $x.off().on('change', update);
-    $y.off().on('change', update);
-    $z.off().on('change', update);
+    for (const el of [$x, $y, $z, $rx, $ry, $rz, $ox, $oy, $oz]) {
+        el.off().on('change', update);
+    }
 }

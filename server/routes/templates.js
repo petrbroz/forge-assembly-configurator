@@ -5,11 +5,8 @@ const {
     createTemplate,
     listTemplates,
     getTemplate,
-    getTemplateAssets,
-    getTemplateEnclosureThumbnail,
+    getTemplateSharedAssets,
     getTemplateModuleThumbnail,
-    addTemplateEnclosure,
-    updateTemplateEnclosure,
     addTemplateModule,
     updateTemplateModule,
     deleteTemplate
@@ -59,70 +56,8 @@ router.delete('/:id', async function (req, res, next) {
 
 router.get('/:id/assets', async function (req, res, next) {
     try {
-        const assets = await getTemplateAssets(req.params.id);
+        const assets = await getTemplateSharedAssets(req.params.id);
         res.json(assets);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.post('/:id/enclosures', async function (req, res, next) {
-    try {
-        const { name, asset, connectors } = req.body;
-        if (!name || !asset || !connectors) {
-            throw new Error('One of the required fields is missing: name, asset, connectors');
-        }
-        const enclosure = await addTemplateEnclosure(req.params.id, name, asset, connectors);
-        res.json(enclosure);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.get('/:id/enclosures', async function (req, res, next) {
-    try {
-        const template = await getTemplate(req.params.id);
-        res.json(template.enclosures);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.get('/:id/enclosures/:enclosure_id', async function (req, res, next) {
-    try {
-        const template = await getTemplate(req.params.id);
-        const enclosure = template.enclosures.find(e => e.id === req.params.enclosure_id);
-        if (enclosure) {
-            res.json(enclosure);
-        } else {
-            res.status(404).end();
-        }
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.patch('/:id/enclosures/:enclosure_id', async function (req, res, next) {
-    try {
-        const { connectors } = req.body;
-        if (!connectors) {
-            throw new Error('One of the required fields is missing: connectors');
-        }
-        const enclosure = await updateTemplateEnclosure(req.params.id, req.params.enclosure_id, connectors);
-        res.json(enclosure);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.get('/:id/enclosures/:enclosure_id/thumbnail.png', async function (req, res, next) {
-    try {
-        const thumbnail = await getTemplateEnclosureThumbnail(req.params.id, req.params.enclosure_id);
-        if (!thumbnail) {
-            res.status(404).end();
-        } else {
-            res.type('.png').send(thumbnail);
-        }
     } catch (err) {
         next(err);
     }
@@ -130,11 +65,11 @@ router.get('/:id/enclosures/:enclosure_id/thumbnail.png', async function (req, r
 
 router.post('/:id/modules', async function (req, res, next) {
     try {
-        const { name, asset, connectors } = req.body;
-        if (!name || !asset || !connectors) {
+        const { name, shared_assets_path, connectors, transform } = req.body;
+        if (!name || !shared_assets_path || !connectors) {
             throw new Error('One of the required fields is missing: name, asset, connectors');
         }
-        const mod = await addTemplateModule(req.params.id, name, asset, connectors);
+        const mod = await addTemplateModule(req.params.id, name, shared_assets_path, transform, connectors);
         res.json(mod);
     } catch (err) {
         next(err);
@@ -166,11 +101,8 @@ router.get('/:id/modules/:module_id', async function (req, res, next) {
 
 router.patch('/:id/modules/:module_id', async function (req, res, next) {
     try {
-        const { connector } = req.body;
-        if (!connector) {
-            throw new Error('One of the required fields is missing: connector');
-        }
-        const mod = await updateTemplateModule(req.params.id, req.params.module_id, connector);
+        const { connectors, transform } = req.body;
+        const mod = await updateTemplateModule(req.params.id, req.params.module_id, transform, connectors);
         res.json(mod);
     } catch (err) {
         next(err);
