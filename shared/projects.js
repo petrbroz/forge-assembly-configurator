@@ -14,13 +14,14 @@ const dataManagementClient = new DataManagementClient({ client_id: FORGE_CLIENT_
 const modelDerivativeClient = new ModelDerivativeClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 const designAutomationClient = new DesignAutomationClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 
-async function createProject(name, author, templateId) {
+async function createProject(name, authorName, authorId, templateId) {
     const id = uuid();
     fs.ensureDirSync(path.join(CacheFolder, id));
     const project = {
         id,
         name,
-        author,
+        author: authorName,
+        author_id: authorId,
         created: new Date(),
         template_id: templateId,
         public: false,

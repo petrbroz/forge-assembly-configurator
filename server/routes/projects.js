@@ -16,11 +16,28 @@ const {
 let router = express.Router();
 let upload = multer({ dest: path.join(__dirname, '..', '..', 'cache', 'uploads') });
 
+function checkPublicAccess(req, project) {
+    if (project.public) {
+        return;
+    }
+    if (req.session && req.session.user_id && req.session.user_id === project.author_id) {
+        return;
+    }
+    throw new Error('Access denied');
+}
+
+function checkOwnerAccess(req, project) {
+    if (req.session && req.session.user_id && req.session.user_id === project.author_id) {
+        return;
+    }
+    throw new Error('Access denied');
+}
+
 // List existing projects
 router.get('/', async function (req, res, next) {
     try {
         const projects = await listProjects();
-        res.json(projects);
+        res.json(projects.filter(project => project.public || (req.session && req.session.user_id && req.session.user_id === project.author_id)));
     } catch (err) {
         next(err);
     }
@@ -29,21 +46,25 @@ router.get('/', async function (req, res, next) {
 // Create new project
 router.post('/', upload.none(), async function (req, res, next) {
     try {
-        const { name, author, template_id } = req.body;
-        if (!name || !author || !template_id) {
-            throw new Error('One of the required fields is missing: name, author, template_id');
+        if (!req.session || !req.session.user_id) {
+            throw new Error('Access denied');
         }
-        const project = await createProject(name, author, template_id);
+        const { name, template_id } = req.body;
+        if (!name || !template_id) {
+            throw new Error('One of the required fields is missing: name, template_id');
+        }
+        const project = await createProject(name, req.session.user_name || 'Unnamed', req.session.user_id, template_id);
         res.redirect(`/project.html?id=${project.id}`);
     } catch (err) {
         next(err);
     }
 });
 
-// View project details
+// Retrieve project details
 router.get('/:id', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
+        checkPublicAccess(req, project);
         res.json(project);
     } catch (err) {
         next(err);
@@ -53,7 +74,9 @@ router.get('/:id', async function (req, res, next) {
 // Remove project
 router.delete('/:id', async function (req, res, next) {
     try {
-        await deleteProject(req.params.id);
+        const project = await getProject(req.params.id);
+        checkOwnerAccess(req, project);
+        await deleteProject(project.id);
         res.status(200).end();
     } catch (err) {
         next(err);
@@ -63,6 +86,8 @@ router.delete('/:id', async function (req, res, next) {
 // Build the project
 router.post('/:id/build', async function (req, res, next) {
     try {
+        const project = await getProject(req.params.id);
+        checkOwnerAccess(req, project);
         await updateProject(req.params.id, project => {
             project.status = 'inprogress';
             project.progress = 0;
@@ -77,8 +102,9 @@ router.post('/:id/build', async function (req, res, next) {
 // Get project status
 router.get('/:id/status', async function (req, res, next) {
     try {
-        const { status, progress, urn } = await getProject(req.params.id);
-        res.json({ status, progress, urn });
+        const project = await getProject(req.params.id);
+        checkPublicAccess(req, project);
+        res.json({ status: project.status, progress: project.progress, urn: project.urn });
     } catch (err) {
         next(err);
     }
@@ -87,7 +113,9 @@ router.get('/:id/status', async function (req, res, next) {
 // Get project logs
 router.get('/:id/logs.txt', async function (req, res, next) {
     try {
-        const logs = await getProjectLogs(req.params.id);
+        const project = await getProject(req.params.id);
+        checkPublicAccess(req, project);
+        const logs = await getProjectLogs(project.id);
         res.type('.txt').send(logs);
     } catch (err) {
         next(err);
@@ -97,7 +125,9 @@ router.get('/:id/logs.txt', async function (req, res, next) {
 // Get project report
 router.get('/:id/config.json', async function (req, res, next) {
     try {
-        const buff = await getProjectOutput(req.params.id, 'config.json');
+        const project = await getProject(req.params.id);
+        checkPublicAccess(req, project);
+        const buff = await getProjectOutput(project.id, 'config.json');
         if (buff) {
             res.type('.json').send(buff);
         } else {
@@ -111,7 +141,9 @@ router.get('/:id/config.json', async function (req, res, next) {
 // Get project report
 router.get('/:id/report.txt', async function (req, res, next) {
     try {
-        const buff = await getProjectOutput(req.params.id, 'report.txt');
+        const project = await getProject(req.params.id);
+        checkPublicAccess(req, project);
+        const buff = await getProjectOutput(project.id, 'report.txt');
         if (buff) {
             res.type('.txt').send(buff);
         } else {
@@ -125,7 +157,9 @@ router.get('/:id/report.txt', async function (req, res, next) {
 // Get project thumbnail
 router.get('/:id/thumbnail.png', async function (req, res, next) {
     try {
-        const buff = await getProjectThumbnail(req.params.id);
+        const project = await getProject(req.params.id);
+        checkPublicAccess(req, project);
+        const buff = await getProjectThumbnail(project.id);
         if (buff) {
             res.type('.png').send(buff);
         } else {
@@ -139,7 +173,9 @@ router.get('/:id/thumbnail.png', async function (req, res, next) {
 // Get project output (Inventor assembly)
 router.get('/:id/output.zip', async function (req, res, next) {
     try {
-        const buff = await getProjectOutput(req.params.id, 'output.zip');
+        const project = await getProject(req.params.id);
+        checkPublicAccess(req, project);
+        const buff = await getProjectOutput(project.id, 'output.zip');
         if (buff) {
             res.type('.zip').send(buff);
         } else {
@@ -153,7 +189,9 @@ router.get('/:id/output.zip', async function (req, res, next) {
 // Get project output (Revit family)
 router.get('/:id/output.rfa', async function (req, res, next) {
     try {
-        const buff = await getProjectOutput(req.params.id, 'output.rfa');
+        const project = await getProject(req.params.id);
+        checkPublicAccess(req, project);
+        const buff = await getProjectOutput(project.id, 'output.rfa');
         if (buff) {
             res.type('.rfa').send(buff);
         } else {

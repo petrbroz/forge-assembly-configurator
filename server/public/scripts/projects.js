@@ -35,7 +35,7 @@ async function updateProjects() {
                     </div>
                     <div class="card-footer">
                         <a href="/project.html?id=${project.id}" class="btn btn-sm btn-outline-primary">${project.status ? 'View' : 'Edit'}</a>
-                        ${userLoggedIn() ? `<a href="#" data-remove-id="${project.id}" class="btn btn-sm btn-outline-danger">Remove</a>` : ``}
+                        ${userLoggedIn() && USER.id === project.author_id ? `<a href="#" data-remove-id="${project.id}" class="btn btn-sm btn-outline-danger">Remove</a>` : ``}
                     </div>
                 </div>
             </div>
