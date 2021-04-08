@@ -38,6 +38,16 @@ export async function getTemplate(templateId) {
         throw new Error(await resp.text());
     }
     const template = await resp.json();
+    // TODO: fix this when the template is created/updated
+    for (const _module of template.modules) {
+        for (const connector of _module.connectors) {
+            connector.transform = connector.transform.map(el => parseFloat(el));
+            if (connector.grid) {
+                connector.grid.repeat = connector.grid.repeat.map(el => parseFloat(el));
+                connector.grid.offset = connector.grid.offset.map(el => parseFloat(el));
+            }
+        }
+    }
     return template;
 }
 
