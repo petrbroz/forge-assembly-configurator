@@ -2,7 +2,7 @@
 
 A simple, generic assembly configurator built using the [Autodesk Forge](https://forge.autodesk.com) platform.
 
-![preview](./docs/preview.gif)
+[![Preview](https://img.youtube.com/vi/YSDxcYe_xvg/0.jpg)](https://www.youtube.com/watch?v=YSDxcYe_xvg "Forge Configurator Demo")
 
 ## Development
 
