@@ -21,7 +21,7 @@ $(async function () {
     try {
         const project = await getProject(id);
         const template = await getTemplate(project.template_id);
-        if (userLoggedIn() && USER.id === project.author_id && !project.public) {
+        if (userLoggedIn() && USER.id === project.author_id && !project.public && !project.status) {
             updateGeneralUI(project, template);
             updateEditingUI(project, template);
         } else {
