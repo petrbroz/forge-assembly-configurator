@@ -1,6 +1,6 @@
 import { initializeViewer, loadModel } from './viewer-utilities.js';
 import { deleteProject, getProject, getTemplate, showAlert } from './api-utilities.js';
-import { updateLoginUI } from './user-utilities.js';
+import { updateLoginUI, userLoggedIn } from './user-utilities.js';
 
 const state = {
     modules: []
@@ -21,12 +21,12 @@ $(async function () {
     try {
         const project = await getProject(id);
         const template = await getTemplate(project.template_id);
-        if (project.status !== '' && project.status !== null) {
-            updateGeneralUI(project, template);
-            updateViewingUI(project, template);
-        } else {
+        if (userLoggedIn() && USER.id === project.author_id && !project.public) {
             updateGeneralUI(project, template);
             updateEditingUI(project, template);
+        } else {
+            updateGeneralUI(project, template);
+            updateViewingUI(project, template);
         }
     } catch (err) {
         showAlert('Error', 'Could not retrieve project information: ' + err);

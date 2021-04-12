@@ -9,7 +9,7 @@ import {
     updateTemplateModule,
     showAlert
 } from './api-utilities.js';
-import { updateLoginUI } from './user-utilities.js';
+import { updateLoginUI, userLoggedIn } from './user-utilities.js';
 
 const state = {
     modules: [],
@@ -30,10 +30,10 @@ $(async function () {
         const template = await getTemplate(id);
         state.modules = template.modules;
         initGeneralUI(template);
-        if (template.public) {
-            initViewingUI(template);
-        } else {
+        if (userLoggedIn() && USER.id === template.author_id && !template.public) {
             initEditingUI(template);
+        } else {
+            initViewingUI(template);
         }
     } catch (err) {
         showAlert('Error', 'Could not retrieve template information: ' + err);

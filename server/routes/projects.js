@@ -16,27 +16,30 @@ const {
 let router = express.Router();
 let upload = multer({ dest: path.join(__dirname, '..', '..', 'cache', 'uploads') });
 
-function checkPublicAccess(req, project) {
+// Check whether a web request has a read access to a project
+function hasPublicAccess(req, project) {
     if (project.public) {
-        return;
+        return true;
     }
     if (req.session && req.session.user_id && req.session.user_id === project.author_id) {
-        return;
+        return true;
     }
-    throw new Error('Access denied');
+    return false;
 }
 
-function checkOwnerAccess(req, project) {
+// Check whether a web request has a write access to a project
+function hasOwnerAccess(req, project) {
     if (req.session && req.session.user_id && req.session.user_id === project.author_id) {
-        return;
+        return true;
     }
-    throw new Error('Access denied');
+    return false;
 }
 
 // List existing projects
 router.get('/', async function (req, res, next) {
     try {
         const projects = await listProjects();
+        // List all projects that are (a) public, or (b) owned by the user
         res.json(projects.filter(project => project.public || (req.session && req.session.user_id && req.session.user_id === project.author_id)));
     } catch (err) {
         next(err);
@@ -64,7 +67,9 @@ router.post('/', upload.none(), async function (req, res, next) {
 router.get('/:id', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkPublicAccess(req, project);
+        if (!hasPublicAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         res.json(project);
     } catch (err) {
         next(err);
@@ -75,7 +80,9 @@ router.get('/:id', async function (req, res, next) {
 router.delete('/:id', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkOwnerAccess(req, project);
+        if (!hasOwnerAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         await deleteProject(project.id);
         res.status(200).end();
     } catch (err) {
@@ -87,7 +94,9 @@ router.delete('/:id', async function (req, res, next) {
 router.post('/:id/build', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkOwnerAccess(req, project);
+        if (!hasOwnerAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         await updateProject(req.params.id, project => {
             project.status = 'inprogress';
             project.progress = 0;
@@ -103,7 +112,9 @@ router.post('/:id/build', async function (req, res, next) {
 router.get('/:id/status', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkPublicAccess(req, project);
+        if (!hasPublicAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         res.json({ status: project.status, progress: project.progress, urn: project.urn });
     } catch (err) {
         next(err);
@@ -114,7 +125,9 @@ router.get('/:id/status', async function (req, res, next) {
 router.get('/:id/logs.txt', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkPublicAccess(req, project);
+        if (!hasPublicAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         const logs = await getProjectLogs(project.id);
         res.type('.txt').send(logs);
     } catch (err) {
@@ -126,7 +139,9 @@ router.get('/:id/logs.txt', async function (req, res, next) {
 router.get('/:id/config.json', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkPublicAccess(req, project);
+        if (!hasPublicAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         const buff = await getProjectOutput(project.id, 'config.json');
         if (buff) {
             res.type('.json').send(buff);
@@ -142,7 +157,9 @@ router.get('/:id/config.json', async function (req, res, next) {
 router.get('/:id/report.txt', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkPublicAccess(req, project);
+        if (!hasPublicAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         const buff = await getProjectOutput(project.id, 'report.txt');
         if (buff) {
             res.type('.txt').send(buff);
@@ -158,7 +175,9 @@ router.get('/:id/report.txt', async function (req, res, next) {
 router.get('/:id/thumbnail.png', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkPublicAccess(req, project);
+        if (!hasPublicAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         const buff = await getProjectThumbnail(project.id);
         if (buff) {
             res.type('.png').send(buff);
@@ -174,7 +193,9 @@ router.get('/:id/thumbnail.png', async function (req, res, next) {
 router.get('/:id/output.zip', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkPublicAccess(req, project);
+        if (!hasPublicAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         const buff = await getProjectOutput(project.id, 'output.zip');
         if (buff) {
             res.type('.zip').send(buff);
@@ -190,7 +211,9 @@ router.get('/:id/output.zip', async function (req, res, next) {
 router.get('/:id/output.rfa', async function (req, res, next) {
     try {
         const project = await getProject(req.params.id);
-        checkPublicAccess(req, project);
+        if (!hasPublicAccess(req, project)) {
+            throw new Error('Access denied');
+        }
         const buff = await getProjectOutput(project.id, 'output.rfa');
         if (buff) {
             res.type('.rfa').send(buff);

@@ -34,8 +34,8 @@ async function updateProjects() {
                         <p class="card-text">Author: ${project.author}</p>
                     </div>
                     <div class="card-footer">
-                        <a href="/project.html?id=${project.id}" class="btn btn-sm btn-outline-primary">${project.status ? 'View' : 'Edit'}</a>
-                        ${userLoggedIn() && USER.id === project.author_id ? `<a href="#" data-remove-id="${project.id}" class="btn btn-sm btn-outline-danger">Remove</a>` : ``}
+                        <a href="/project.html?id=${project.id}" class="btn btn-sm btn-outline-primary">${project.public || !userLoggedIn() || USER.id !== project.author_id ? 'View' : 'Edit'}</a>
+                        ${userLoggedIn() && USER.id === project.author_id && !project.public ? `<a href="#" data-remove-id="${project.id}" class="btn btn-sm btn-outline-danger">Remove</a>` : ``}
                     </div>
                 </div>
             </div>
