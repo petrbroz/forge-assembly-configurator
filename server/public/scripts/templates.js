@@ -35,7 +35,7 @@ async function updateTemplates() {
                     </div>
                     <div class="card-footer">
                         <a href="/template.html?id=${template.id}" class="btn btn-sm btn-outline-primary">${template.public ? 'View' : 'Edit'}</a>
-                        ${userLoggedIn() ? `<a href="#" data-remove-id="${template.id}" class="btn btn-sm btn-outline-danger">Remove</a>` : ``}
+                        ${userLoggedIn() && USER.id === template.author_id ? `<a href="#" data-remove-id="${template.id}" class="btn btn-sm btn-outline-danger">Remove</a>` : ``}
                     </div>
                 </div>
             </div>

@@ -51,13 +51,14 @@ fs.ensureDirSync(CacheFolder);
 let dataManagementClient = new DataManagementClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 let modelDerivativeClient = new ModelDerivativeClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 
-async function createTemplate(name, author, sharedAssetsFilename) {
+async function createTemplate(name, authorName, authorId, sharedAssetsFilename) {
     const id = uuid();
     fs.ensureDirSync(path.join(CacheFolder, id));
     const template = {
         id,
         name,
-        author,
+        author: authorName,
+        author_id: authorId,
         created: new Date(),
         public: false,
         modules: []

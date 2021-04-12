@@ -4,11 +4,12 @@ const { createTemplate, getTemplateSharedAssets, addTemplateModule, publishTempl
 async function run() {
     const name = 'Basic Template';
     const author = 'Przemyslaw Sokolowski';
-    const sharedAssetsFilename = path.join(__dirname, 'templates', 'przemek', 'assets.zip');
+    const authorId = 'test';
+    const sharedAssetsFilename = path.join(__dirname, 'templates', 'przemek-v2', 'assets.zip');
 
     // Create new template
     console.log('Creating new template...');
-    const template = await createTemplate(name, author, sharedAssetsFilename);
+    const template = await createTemplate(name, author, authorId, sharedAssetsFilename);
     console.log(template);
     const assets = await getTemplateSharedAssets(template.id);
     console.log('Available assets', assets);
