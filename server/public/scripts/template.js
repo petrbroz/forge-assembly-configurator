@@ -1,6 +1,7 @@
 import { initializeViewer, loadModel } from './viewer-utilities.js';
 import {
     getTemplate,
+    publishTemplate,
     deleteTemplate,
     getTemplateAssets,
     getTemplateModules,
@@ -47,7 +48,7 @@ async function initGeneralUI(template) {
     $('#template-status').val(template.public ? 'published' : 'unpublished');
     $('#remove').click(async function () {
         try {
-            await deleteTemplate(id);
+            await deleteTemplate(template.id);
             window.location.href = `/templates.html`;
         } catch (err) {
             showAlert('Error', 'Could not delete template: ' + err);
@@ -85,6 +86,14 @@ async function initEditingUI(template) {
     $('[data-disabled-when=editing]').attr('disabled', 'true');
     $('[data-readonly-when=editing]').attr('readonly', 'true');
     $('#components-tab').tab('show');
+    $('#publish').click(async function () {
+        try {
+            await publishTemplate(template.id);
+            window.location.reload();
+        } catch (err) {
+            showAlert('Error', 'Could not publish template: ' + err);
+        }
+    });
 
     try {
         viewer = await initializeViewer(document.getElementById('viewer'), { extensions: ['ConnectorEditExtension'] });

@@ -9,6 +9,7 @@ const {
     getTemplateModuleThumbnail,
     addTemplateModule,
     updateTemplateModule,
+    publishTemplate,
     deleteTemplate
 } = require('../../shared/templates.js');
 
@@ -40,6 +41,19 @@ router.get('/:id', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
         res.json(template);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.patch('/:id', async function (req, res, next) {
+    try {
+        const template = await getTemplate(req.params.id);
+        //checkOwnerAccess(req, template);
+        if (req.body.public) {
+            await publishTemplate(template.id);
+        }
+        res.status(200).end();
     } catch (err) {
         next(err);
     }

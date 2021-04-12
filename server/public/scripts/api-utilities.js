@@ -51,6 +51,17 @@ export async function getTemplate(templateId) {
     return template;
 }
 
+export async function publishTemplate(templateId) {
+    const resp = await fetch(`/api/templates/${templateId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ public: true })
+    });
+    if (!resp.ok) {
+        throw new Error(await resp.text());
+    }
+}
+
 export async function getTemplateAssets(templateId) {
     const resp = await fetch(`/api/templates/${templateId}/assets`);
     if (!resp.ok) {
