@@ -260,7 +260,9 @@ async function updateStatus(project) {
 
     // Update the logs
     const logs = await fetch(`/api/projects/${project.id}/logs.txt`);
-    document.getElementById('logs-content').value = await logs.text();
+    const logsTextArea = document.getElementById('logs-content');
+    logsTextArea.value = await logs.text();
+    logsTextArea.scrollTop = logsTextArea.scrollHeight;
 
     // Update the report
     if (status.status === 'inprogress') {
