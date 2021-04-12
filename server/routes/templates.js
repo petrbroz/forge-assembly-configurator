@@ -16,21 +16,23 @@ const {
 let router = express.Router();
 let upload = multer({ dest: path.join(__dirname, '..', '..', 'cache', 'uploads') });
 
-function checkPublicAccess(req, template) {
+// Check whether a web request has a read access to a template
+function hasPublicAccess(req, template) {
     if (template.public) {
-        return;
+        return true;
     }
     if (req.session && req.session.user_id && req.session.user_id === template.author_id) {
-        return;
+        return true;
     }
-    throw new Error('Access denied');
+    return false;
 }
 
-function checkOwnerAccess(req, template) {
+// Check whether a web request has a write access to a template
+function hasOwnerAccess(req, template) {
     if (req.session && req.session.user_id && req.session.user_id === template.author_id) {
-        return;
+        return true;
     }
-    throw new Error('Access denied');
+    return false;
 }
 
 router.post('/', upload.single('assets'), async function (req, res, next) {
@@ -41,7 +43,7 @@ router.post('/', upload.single('assets'), async function (req, res, next) {
         if (!req.body.name || !req.file) {
             throw new Error('One of the required fields is missing: name, assets');
         }
-        const template = await createTemplate(req.body.name, req.session.user_name, req.session.user_id, req.file.path);
+        const template = await createTemplate(req.body.name, req.session.user_name || 'Unknown Author', req.session.user_id, req.file.path);
         res.redirect(`/template.html?id=${template.id}`);
     } catch (err) {
         next(err);
@@ -51,6 +53,7 @@ router.post('/', upload.single('assets'), async function (req, res, next) {
 router.get('/', async function (req, res, next) {
     try {
         const templates = await listTemplates();
+        // List all templates that are (a) public, or (b) owned by the user
         res.json(templates.filter(template => template.public || (req.session && req.session.user_id && req.session.user_id === template.author_id)));
     } catch (err) {
         next(err);
@@ -60,7 +63,9 @@ router.get('/', async function (req, res, next) {
 router.get('/:id', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        checkPublicAccess(req, template);
+        if (!hasPublicAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         res.json(template);
     } catch (err) {
         next(err);
@@ -70,7 +75,9 @@ router.get('/:id', async function (req, res, next) {
 router.patch('/:id', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        //checkOwnerAccess(req, template);
+        if (!hasOwnerAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         if (req.body.public) {
             await publishTemplate(template.id);
         }
@@ -83,7 +90,9 @@ router.patch('/:id', async function (req, res, next) {
 router.delete('/:id', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        checkOwnerAccess(req, template);
+        if (!hasOwnerAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         await deleteTemplate(template.id);
         res.status(200).end();
     } catch (err) {
@@ -94,7 +103,9 @@ router.delete('/:id', async function (req, res, next) {
 router.get('/:id/assets', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        checkPublicAccess(req, template);
+        if (!hasPublicAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         const assets = await getTemplateSharedAssets(template.id);
         res.json(assets);
     } catch (err) {
@@ -105,7 +116,9 @@ router.get('/:id/assets', async function (req, res, next) {
 router.post('/:id/modules', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        checkOwnerAccess(req, template);
+        if (!hasOwnerAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         const { name, shared_assets_path, connectors, transform } = req.body;
         if (!name || !shared_assets_path || !connectors) {
             throw new Error('One of the required fields is missing: name, asset, connectors');
@@ -120,7 +133,9 @@ router.post('/:id/modules', async function (req, res, next) {
 router.get('/:id/modules', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        checkPublicAccess(req, template);
+        if (!hasPublicAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         res.json(template.modules);
     } catch (err) {
         next(err);
@@ -130,7 +145,9 @@ router.get('/:id/modules', async function (req, res, next) {
 router.get('/:id/modules/:module_id', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        checkPublicAccess(req, template);
+        if (!hasPublicAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         const mod = template.modules.find(e => e.id === req.params.module_id);
         if (mod) {
             res.json(mod);
@@ -145,7 +162,9 @@ router.get('/:id/modules/:module_id', async function (req, res, next) {
 router.patch('/:id/modules/:module_id', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        checkOwnerAccess(req, template);
+        if (!hasOwnerAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         const { connectors, transform } = req.body;
         const mod = await updateTemplateModule(template.id, req.params.module_id, transform, connectors);
         res.json(mod);
@@ -157,7 +176,9 @@ router.patch('/:id/modules/:module_id', async function (req, res, next) {
 router.get('/:id/modules/:module_id/thumbnail.png', async function (req, res, next) {
     try {
         const template = await getTemplate(req.params.id);
-        checkPublicAccess(req, template);
+        if (!hasPublicAccess(req, template)) {
+            throw new Error('Access denied');
+        }
         const thumbnail = await getTemplateModuleThumbnail(template.id, req.params.module_id);
         if (!thumbnail) {
             res.status(404).end();
