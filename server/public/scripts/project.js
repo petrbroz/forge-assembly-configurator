@@ -176,7 +176,8 @@ function setupDragDrop(template, viewer, container, state) {
             connectorsExt.addConnectors(lastModule.module.connectors.map(connector => {
                 let newConnector = {
                     transform: connector.transform.slice(),
-                    grid: connector.grid
+                    grid: connector.grid,
+                    model: lastModule.model
                 };
                 newConnector.transform[3] += lastModule.xform.elements[12];
                 newConnector.transform[7] += lastModule.xform.elements[13];

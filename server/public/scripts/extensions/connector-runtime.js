@@ -4,12 +4,16 @@ class ConnectorRuntimeExtension extends Autodesk.Viewing.Extension {
         this._connectors = [];
         this._projected = [];
         this._onCameraChange = this.onCameraChange.bind(this);
+        this._onModelChange = this.onModelChange.bind(this);
         this._connectorGeometry = new THREE.SphereGeometry(options.connectorSize || 0.5, 4, 4);
         this._connectorMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     }
 
     load() {
         this.viewer.addEventListener(Autodesk.Viewing.CAMERA_CHANGE_EVENT, this._onCameraChange);
+        this.viewer.addEventListener(Autodesk.Viewing.HIDE_EVENT, this._onModelChange);
+        this.viewer.addEventListener(Autodesk.Viewing.SHOW_EVENT, this._onModelChange);
+        this.viewer.addEventListener(Autodesk.Viewing.ISOLATE_EVENT, this._onModelChange);
         this.viewer.overlays.addScene('connectors');
         console.log('Connectors extension loaded.');
         return true;
@@ -17,6 +21,9 @@ class ConnectorRuntimeExtension extends Autodesk.Viewing.Extension {
 
     unload() {
         this.viewer.removeEventListener(Autodesk.Viewing.CAMERA_CHANGE_EVENT, this._onCameraChange);
+        this.viewer.removeEventListener(Autodesk.Viewing.HIDE_EVENT, this._onModelChange);
+        this.viewer.removeEventListener(Autodesk.Viewing.SHOW_EVENT, this._onModelChange);
+        this.viewer.removeEventListener(Autodesk.Viewing.ISOLATE_EVENT, this._onModelChange);
         this.viewer.overlays.removeScene('connectors');
         console.log('Connectors extension unloaded.');
         return true;
@@ -29,8 +36,14 @@ class ConnectorRuntimeExtension extends Autodesk.Viewing.Extension {
     }
 
     updateOverlay() {
+        const aggregatHiddenNodes = this.viewer.getAggregateHiddenNodes();
         this.viewer.overlays.clearScene('connectors');
         for (const connector of this._connectors) {
+            // If the root of connector's model is hidden (we check if dbIDs 1 or 2 are hidden), skip it
+            connector.hidden = aggregatHiddenNodes.findIndex(group => group.model === connector.model && (group.ids.includes(1) || group.ids.includes(2))) !== -1;
+            if (connector.hidden) {
+                continue;
+            }
             const group = new THREE.Group();
             if (connector.grid) {
                 for (let z = 0; z < connector.grid.repeat[2]; z++) {
@@ -67,7 +80,7 @@ class ConnectorRuntimeExtension extends Autodesk.Viewing.Extension {
                                 connector.transform[11] + z * connector.grid.offset[2]
                             );
                             const screenPos = this.viewer.impl.worldToClient(worldPos);
-                            this._projected.push({ worldPos, screenPos });
+                            this._projected.push({ worldPos, screenPos, hidden: connector.hidden });
                         }
                     }
                 }
@@ -78,7 +91,7 @@ class ConnectorRuntimeExtension extends Autodesk.Viewing.Extension {
                     connector.transform[11]
                 );
                 const screenPos = this.viewer.impl.worldToClient(worldPos);
-                this._projected.push({ worldPos, screenPos });
+                this._projected.push({ worldPos, screenPos, hidden: connector.hidden });
             }
         }
     }
@@ -87,11 +100,19 @@ class ConnectorRuntimeExtension extends Autodesk.Viewing.Extension {
         this.updateProjected();
     }
 
+    onModelChange() {
+        this.updateOverlay();
+        this.updateProjected();
+    }
+
     findNearest(clientX, clientY, maxRadius) {
         let nearest = null;
         let minDist = Number.MAX_VALUE;
         for (let i = 0; i < this._projected.length; i++) {
             const proj = this._projected[i];
+            if (proj.hidden) {
+                continue;
+            }
             const dx = proj.screenPos.x - clientX;
             const dy = proj.screenPos.y - clientY;
             const dist = Math.sqrt(dx * dx + dy * dy);
