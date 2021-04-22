@@ -4,6 +4,8 @@ A simple, generic assembly configurator built using the [Autodesk Forge](https:/
 
 [![Preview](https://img.youtube.com/vi/Jz3izhFTEps/0.jpg)](https://www.youtube.com/watch?v=Jz3izhFTEps "Forge Configurator Demo")
 
+Live demo: https://forge-assembly-configurator.herokuapp.com
+
 ## Development
 
 ### Prerequisites
