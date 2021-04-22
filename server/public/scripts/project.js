@@ -286,8 +286,8 @@ async function updateStatus(project) {
     // Update the viewer
     if (status.status === 'finished' && status.urn) {
         document.getElementById('preview-tab').classList.remove('disabled');
-        urn = status.urn;
-        if (viewer) {
+        if (viewer && urn !== status.urn) {
+            urn = status.urn;
             loadModel(viewer, urn);
         }
     } else {
