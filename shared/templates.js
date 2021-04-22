@@ -81,6 +81,7 @@ async function getTemplate(id) {
         const template = JSON.parse(buff.toString());
         // Only cache the JSON when the template has already been published
         if (template.public) {
+            fs.ensureDirSync(path.join(CacheFolder, id));
             fs.writeFileSync(templateCachePath, buff);
         }
         return template;

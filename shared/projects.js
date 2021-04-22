@@ -43,7 +43,7 @@ async function getProject(id) {
         const project = JSON.parse(buff.toString());
         // Only cache the JSON when the project has already been published
         if (project.public) {
-            fs.ensureDirSync(path.dirname(projectCachePath));
+            fs.ensureDirSync(path.join(CacheFolder, id));
             fs.writeFileSync(projectCachePath, buff);
         }
         return project;
