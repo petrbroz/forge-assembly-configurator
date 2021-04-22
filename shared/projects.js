@@ -3,11 +3,12 @@ const fs = require('fs-extra');
 const { v4: uuid } = require('uuid');
 const fetch = require('node-fetch');
 const { DataManagementClient, DesignAutomationClient, DesignAutomationID, ModelDerivativeClient, urnify, ThumbnailSize } = require('forge-server-utils');
-const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, INVENTOR_PIPELINE } = require('../config.js');
+const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, INVENTOR_PIPELINE, CACHE_FOLDER } = require('../config.js');
 const { getTemplate } = require('./templates.js');
 
 const FullActivityID = new DesignAutomationID(FORGE_CLIENT_ID, INVENTOR_PIPELINE.ACTIVITY_ID, INVENTOR_PIPELINE.ACTIVITY_ALIAS).toString();
-const CacheFolder = path.join(__dirname, '..', 'cache', 'projects');
+const CacheFolder = path.join(CACHE_FOLDER, 'cache', 'projects');
+console.log('Creating a project cache folder', CacheFolder);
 fs.ensureDirSync(CacheFolder);
 
 const dataManagementClient = new DataManagementClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });

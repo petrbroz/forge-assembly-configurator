@@ -3,7 +3,7 @@ const path = require('path');
 const { v4: uuid } = require('uuid');
 const AdmZip = require('adm-zip');
 const { DataManagementClient, ModelDerivativeClient, urnify, ThumbnailSize } = require('forge-server-utils');
-const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET } = require('../config.js');
+const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, CACHE_FOLDER } = require('../config.js');
 
 /*
 
@@ -45,7 +45,8 @@ in the Forge Data Management service. The JSON looks like this:
 
 */
 
-const CacheFolder = path.join(__dirname, '..', 'cache', 'templates');
+const CacheFolder = path.join(CACHE_FOLDER, 'cache', 'templates');
+console.log('Creating a template cache folder', CacheFolder);
 fs.ensureDirSync(CacheFolder);
 
 let dataManagementClient = new DataManagementClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });

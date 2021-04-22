@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs-extra');
 
 const PORT = process.env.PORT || 3000;
 const {
@@ -30,5 +31,6 @@ module.exports = {
         APPBUNDLE_PATH: path.join(__dirname, 'plugins', 'DesignAutomationForInventor_DesignView2', 'Output', 'DesignAutomationForInventor1Plugin.bundle.zip'),
         ACTIVITY_ID: 'Assemble',
         ACTIVITY_ALIAS: 'prod'
-    }
+    },
+    CACHE_FOLDER: fs.mkdtempSync('forge-assembly-configurator')
 };
