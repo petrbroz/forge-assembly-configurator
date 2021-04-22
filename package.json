@@ -1,6 +1,6 @@
 {
   "name": "forge-assembly-configurator",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Generic configurator built with Autodesk Forge and Design Automation for Inventor.",
   "scripts": {
     "start": "node server/app.js"
@@ -15,7 +15,6 @@
   "dependencies": {
     "adm-zip": "^0.5.3",
     "cookie-session": "^1.4.0",
-    "debug": "^4.3.1",
     "express": "^4.17.1",
     "forge-server-utils": "^8.3.0",
     "fs-extra": "^9.1.0",

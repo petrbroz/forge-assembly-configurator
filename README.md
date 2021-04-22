@@ -13,8 +13,8 @@ A simple, generic assembly configurator built using the [Autodesk Forge](https:/
 
 ### Folder structure
 
-- _shared_ - the code for basic CRUD operations on "templates" and "projects"
-- _plugins_ - an Inventor plugin that is used to assemble parts
+- _shared_ - basic CRUD operations on "templates" and "projects", used by the server and command-line tools
+- _plugins_ - an Inventor plugin used to assemble parts
 - _server_ - a simple Express.js server providing a web interface for the configurator
   - _public_ - client side assets
   - _routes_ - server side endpoints
@@ -25,7 +25,7 @@ A simple, generic assembly configurator built using the [Autodesk Forge](https:/
 
 - install dependencies: `yarn install`
 - setup env. variables listed in _config.js_
-- if not available, setup the Design Automation pipeline: `node tools/setup-inventor-pipeline.js`
-- if not available, setup a sample template: `node tools/setup-template-przemek.js`
+- if not available, create the Design Automation pipeline: `node tools/setup-inventor-pipeline.js`
+- if not available, create a sample template: `node tools/setup-template-przemek.js`
 - run the server `yarn start`
 - visit http://localhost:3000

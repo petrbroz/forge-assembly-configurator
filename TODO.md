@@ -1,0 +1,3 @@
+- [ ] control visibility of snapping points per individual object ID
+- [ ] show progress bar or a spinner during long-running operations (e.g., when uploading a bundle)
+- [ ] when choosing a template for a project, show a gallery of thumbnails instead of a dropdown with titles

@@ -1,7 +1,14 @@
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
-const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, FORGE_CALLBACK_URL, SERVER_SESSION_SECRET } = process.env;
+const {
+    FORGE_CLIENT_ID,
+    FORGE_CLIENT_SECRET,
+    FORGE_BUCKET,
+    FORGE_CALLBACK_URL,
+    SERVER_SESSION_SECRET
+} = process.env;
+
 if (!FORGE_CLIENT_ID || !FORGE_CLIENT_SECRET || !FORGE_BUCKET || !FORGE_CALLBACK_URL || !SERVER_SESSION_SECRET) {
     console.warn('Some of the environment variables are missing:');
     console.warn('FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, FORGE_CALLBACK_URL, SERVER_SESSION_SECRET')
