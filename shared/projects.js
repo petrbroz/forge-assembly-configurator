@@ -7,9 +7,11 @@ const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, INVENTOR_PIPELINE, C
 const { getTemplate } = require('./templates.js');
 
 const FullActivityID = new DesignAutomationID(FORGE_CLIENT_ID, INVENTOR_PIPELINE.ACTIVITY_ID, INVENTOR_PIPELINE.ACTIVITY_ALIAS).toString();
-const CacheFolder = path.join(CACHE_FOLDER, 'cache', 'projects');
-console.log('Creating a project cache folder', CacheFolder);
-fs.ensureDirSync(CacheFolder);
+const CacheFolder = path.join(CACHE_FOLDER, 'projects');
+if (!fs.existsSync(CacheFolder)) {
+    console.log('Creating a project cache folder', CacheFolder);
+    fs.mkdirSync(CacheFolder);
+}
 
 const dataManagementClient = new DataManagementClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 const modelDerivativeClient = new ModelDerivativeClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });

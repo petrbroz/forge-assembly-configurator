@@ -12,9 +12,10 @@ const {
     getProjectThumbnail,
     getProjectOutput
 } = require('../../shared/projects.js');
+const { CACHE_FOLDER } = require('../../config.js');
 
 let router = express.Router();
-let upload = multer({ dest: path.join(__dirname, '..', '..', 'cache', 'uploads') });
+let upload = multer({ dest: path.join(CACHE_FOLDER, 'uploads') });
 
 // Check whether a web request has a read access to a project
 function hasPublicAccess(req, project) {

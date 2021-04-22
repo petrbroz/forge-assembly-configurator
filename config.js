@@ -10,6 +10,11 @@ const {
     SERVER_SESSION_SECRET
 } = process.env;
 
+const CacheFolder = path.join(__dirname, 'cache');
+if (!fs.existsSync(CacheFolder)) {
+    fs.mkdirSync(CacheFolder);
+}
+
 if (!FORGE_CLIENT_ID || !FORGE_CLIENT_SECRET || !FORGE_BUCKET || !FORGE_CALLBACK_URL || !SERVER_SESSION_SECRET) {
     console.warn('Some of the environment variables are missing:');
     console.warn('FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_BUCKET, FORGE_CALLBACK_URL, SERVER_SESSION_SECRET')
@@ -32,5 +37,5 @@ module.exports = {
         ACTIVITY_ID: 'Assemble',
         ACTIVITY_ALIAS: 'prod'
     },
-    CACHE_FOLDER: fs.mkdtempSync('forge-assembly-configurator')
+    CACHE_FOLDER: CacheFolder
 };

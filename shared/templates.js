@@ -45,9 +45,11 @@ in the Forge Data Management service. The JSON looks like this:
 
 */
 
-const CacheFolder = path.join(CACHE_FOLDER, 'cache', 'templates');
-console.log('Creating a template cache folder', CacheFolder);
-fs.ensureDirSync(CacheFolder);
+const CacheFolder = path.join(CACHE_FOLDER, 'templates');
+if (!fs.existsSync(CacheFolder)) {
+    console.log('Creating a template cache folder', CacheFolder);
+    fs.mkdirSync(CacheFolder);
+}
 
 let dataManagementClient = new DataManagementClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 let modelDerivativeClient = new ModelDerivativeClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
