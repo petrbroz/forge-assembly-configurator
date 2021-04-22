@@ -29,3 +29,10 @@ A simple, generic assembly configurator built using the [Autodesk Forge](https:/
 - if not available, create a sample template: `node tools/setup-template-przemek.js`
 - run the server `yarn start`
 - visit http://localhost:3000
+
+## Asset preparation
+
+When preparing your own 3D assets for this application, make sure that their origin is
+setup properly. When you are dropping a part into an assembly, the application logic
+will always try and find a "connector point" (on modules that are already in the assembly)
+that's closest to your mouse cursor, and it will move your part's **origin** to that location.
