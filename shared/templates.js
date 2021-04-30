@@ -109,7 +109,7 @@ async function getTemplateThumbnail(id) {
         // Only cache the thumbnail when the template has already been published
         if (template.public) {
             fs.ensureDirSync(path.join(CacheFolder, id));
-            fs.writeFileSync(templateCachePath, buff);
+            fs.writeFileSync(templateCachePath, thumbnail);
         }
         return thumbnail;
     } else {
