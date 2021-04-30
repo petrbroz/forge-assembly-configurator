@@ -54,7 +54,7 @@ if (!fs.existsSync(CacheFolder)) {
 let dataManagementClient = new DataManagementClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 let modelDerivativeClient = new ModelDerivativeClient({ client_id: FORGE_CLIENT_ID, client_secret: FORGE_CLIENT_SECRET });
 
-async function createTemplate(name, authorName, authorId, sharedAssetsFilename) {
+async function createTemplate(name, authorName, authorId, sharedAssetsFilename, thumbnailFilename = null) {
     const id = uuid();
     fs.ensureDirSync(path.join(CacheFolder, id));
     const template = {
@@ -69,6 +69,9 @@ async function createTemplate(name, authorName, authorId, sharedAssetsFilename) 
     if (sharedAssetsFilename) {
         const sharedAssetsObject = await dataManagementClient.uploadObjectStream(FORGE_BUCKET, `templates/${id}/assets.zip`, 'application/octet-stream', fs.createReadStream(sharedAssetsFilename));
         template.shared_assets = sharedAssetsObject.objectKey;
+    }
+    if (thumbnailFilename) {
+        await dataManagementClient.uploadObjectStream(FORGE_BUCKET, `templates/${id}/thumbnail.png`, 'application/octet-stream', fs.createReadStream(thumbnailFilename));
     }
     await dataManagementClient.uploadObject(FORGE_BUCKET, `templates/${id}/template.json`, 'application/json', JSON.stringify(template));
     return template;
@@ -87,6 +90,30 @@ async function getTemplate(id) {
         return template;
     } else {
         return fs.readJsonSync(templateCachePath);
+    }
+}
+
+async function getTemplateThumbnail(id) {
+    const template = await getTemplate(id);
+    if (!template) {
+        throw new Error('Template does not exist.')
+    }
+    const templateCachePath = path.join(CacheFolder, id, 'thumbnail.png');
+    if (!fs.existsSync(templateCachePath)) {
+        let thumbnail = null;
+        try {
+            thumbnail = await dataManagementClient.downloadObject(FORGE_BUCKET, `templates/${id}/thumbnail.png`);
+        } catch (err) {
+            return null;
+        }
+        // Only cache the thumbnail when the template has already been published
+        if (template.public) {
+            fs.ensureDirSync(path.join(CacheFolder, id));
+            fs.writeFileSync(templateCachePath, buff);
+        }
+        return thumbnail;
+    } else {
+        return fs.readFileSync(templateCachePath);
     }
 }
 
@@ -208,6 +235,7 @@ async function publishTemplate(id) {
 module.exports = {
     createTemplate,
     getTemplate,
+    getTemplateThumbnail,
     getTemplateSharedAssets,
     getTemplateModuleThumbnail,
     listTemplates,

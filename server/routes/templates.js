@@ -5,6 +5,7 @@ const {
     createTemplate,
     listTemplates,
     getTemplate,
+    getTemplateThumbnail,
     getTemplateSharedAssets,
     getTemplateModuleThumbnail,
     addTemplateModule,
@@ -35,15 +36,17 @@ function hasOwnerAccess(req, template) {
     return false;
 }
 
-router.post('/', upload.single('assets'), async function (req, res, next) {
+router.post('/', upload.fields([{ name: 'assets' }, { name: 'thumbnail' }]), async function (req, res, next) {
     try {
         if (!req.session || !req.session.user_id) {
             throw new Error('Access denied');
         }
-        if (!req.body.name || !req.file) {
+        const assetsFile = req.files.assets[0];
+        const thumbnailFile = req.files?.thumbnail[0];
+        if (!req.body.name || !assetsFile) {
             throw new Error('One of the required fields is missing: name, assets');
         }
-        const template = await createTemplate(req.body.name, req.session.user_name || 'Unknown Author', req.session.user_id, req.file.path);
+        const template = await createTemplate(req.body.name, req.session.user_name || 'Unknown Author', req.session.user_id, assetsFile.path, thumbnailFile?.path);
         res.redirect(`/template.html?id=${template.id}`);
     } catch (err) {
         next(err);
@@ -67,6 +70,23 @@ router.get('/:id', async function (req, res, next) {
             throw new Error('Access denied');
         }
         res.json(template);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/:id/thumbnail.png', async function (req, res, next) {
+    try {
+        const template = await getTemplate(req.params.id);
+        if (!hasPublicAccess(req, template)) {
+            throw new Error('Access denied');
+        }
+        const thumbnail = await getTemplateThumbnail(template.id);
+        if (!thumbnail) {
+            res.status(404).end();
+        } else {
+            res.type('.png').send(thumbnail);
+        }
     } catch (err) {
         next(err);
     }
