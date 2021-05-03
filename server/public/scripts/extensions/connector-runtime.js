@@ -35,6 +35,13 @@ class ConnectorRuntimeExtension extends Autodesk.Viewing.Extension {
         this.updateProjected();
     }
 
+    // Removes connectors associated with specific model
+    removeConnectors(model) {
+        this._connectors = this._connectors.filter(connector => connector.model !== model);
+        this.updateOverlay();
+        this.updateProjected();
+    }
+
     updateOverlay() {
         const aggregatHiddenNodes = this.viewer.getAggregateHiddenNodes();
         this.viewer.overlays.clearScene('connectors');

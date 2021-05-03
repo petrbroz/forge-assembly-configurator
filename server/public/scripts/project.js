@@ -99,6 +99,7 @@ async function updateEditingUI(project, template) {
 
     setupDragDrop(template, viewer, document.getElementById('viewer'), state);
     setupBuildButton(project, state);
+    setupRemoveModuleButton();
 }
 
 function setupDragDrop(template, viewer, container, state) {
@@ -301,4 +302,30 @@ async function updateStatus(project) {
     if (status.status === 'inprogress') {
         setTimeout(updateStatus, 5000, project);
     }
+}
+
+function setupRemoveModuleButton() {
+    const $placedModules = $('#placed-modules');
+    const $removeModuleButton = $('#remove-module');
+    function onModulesChange() {
+        if ($placedModules.val()) {
+            $removeModuleButton.show();
+        } else {
+            $removeModuleButton.hide();
+        }
+    }
+    function onButtonClick() {
+        if ($placedModules.val()) {
+            const index = $placedModules[0].selectedIndex;
+            const module = state.modules[index];
+            state.modules.splice(index, 1);
+            const connectorsExt = viewer.getExtension('ConnectorRuntimeExtension');
+            connectorsExt.removeConnectors(module.model);
+            viewer.unloadModel(module.model);
+            updatePlacedModules();
+        }
+    }
+    $placedModules.on('change', onModulesChange);
+    $removeModuleButton.on('click', onButtonClick);
+    onModulesChange();
 }
