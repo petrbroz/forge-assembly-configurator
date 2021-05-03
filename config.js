@@ -30,7 +30,7 @@ module.exports = {
     PORT,
     INVENTOR_PIPELINE: {
         DESCRIPTION: 'App bundle assembling Inventor parts based on a specific layout.',
-        ENGINE: 'Autodesk.Inventor+2021', // This is important because we're leveraging the recent RFA output feature!
+        ENGINE: 'Autodesk.Inventor+2022', // Must be 2021 or newer because we're leveraging the recent RFA output feature!
         APPBUNDLE_NAME: 'InventorAssembler',
         APPBUNDLE_ALIAS: 'prod',
         APPBUNDLE_PATH: path.join(__dirname, 'plugins', 'DesignAutomationForInventor_DesignView2', 'Output', 'DesignAutomationForInventor1Plugin.bundle.zip'),
