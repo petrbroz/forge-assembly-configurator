@@ -12,13 +12,16 @@ const {
     getProjectThumbnail,
     getProjectOutput
 } = require('../../shared/projects.js');
-const { CACHE_FOLDER } = require('../../config.js');
+const { CACHE_FOLDER, inDebugMode } = require('../../config.js');
 
 let router = express.Router();
 let upload = multer({ dest: path.join(CACHE_FOLDER, 'uploads') });
 
 // Check whether a web request has a read access to a project
 function hasPublicAccess(req, project) {
+    if (inDebugMode()) {
+        return true;
+    }
     if (project.public) {
         return true;
     }
@@ -30,6 +33,9 @@ function hasPublicAccess(req, project) {
 
 // Check whether a web request has a write access to a project
 function hasOwnerAccess(req, project) {
+    if (inDebugMode()) {
+        return true;
+    }
     if (req.session && req.session.user_id && req.session.user_id === project.author_id) {
         return true;
     }

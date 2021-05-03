@@ -13,12 +13,16 @@ const {
     publishTemplate,
     deleteTemplate
 } = require('../../shared/templates.js');
+const { inDebugMode } = require('../../config.js');
 
 let router = express.Router();
 let upload = multer({ dest: path.join(__dirname, '..', '..', 'cache', 'uploads') });
 
 // Check whether a web request has a read access to a template
 function hasPublicAccess(req, template) {
+    if (inDebugMode()) {
+        return true;
+    }
     if (template.public) {
         return true;
     }
@@ -30,6 +34,9 @@ function hasPublicAccess(req, template) {
 
 // Check whether a web request has a write access to a template
 function hasOwnerAccess(req, template) {
+    if (inDebugMode()) {
+        return true;
+    }
     if (req.session && req.session.user_id && req.session.user_id === template.author_id) {
         return true;
     }

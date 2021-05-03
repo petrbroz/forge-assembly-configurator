@@ -32,6 +32,8 @@ $(async function () {
         initGeneralUI(template);
         if (userLoggedIn() && USER.id === template.author_id && !template.public) {
             initEditingUI(template);
+        } else if (DEBUG_MODE) {
+            initEditingUI(template);
         } else {
             initViewingUI(template);
         }

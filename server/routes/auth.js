@@ -1,12 +1,18 @@
 const express = require('express');
 const { AuthenticationClient } = require('forge-server-utils');
-const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_CALLBACK_URL } = require('../../config.js');
+const { FORGE_CLIENT_ID, FORGE_CLIENT_SECRET, FORGE_CALLBACK_URL, inDebugMode } = require('../../config.js');
 
 const EmailRegExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 let router = express.Router();
 let authenticationClient = new AuthenticationClient(FORGE_CLIENT_ID, FORGE_CLIENT_SECRET);
 
 router.get('/login', async function (req, res, next) {
+    if (inDebugMode()) {
+        req.session.user_id = 'dev-test';
+        req.session.user_name = 'Dev Test';
+        res.redirect('/');
+        return;
+    }
     const url = authenticationClient.getAuthorizeRedirect(['user-profile:read', 'user:read'], FORGE_CALLBACK_URL);
     res.redirect(url);
 });
@@ -41,7 +47,10 @@ router.get('/callback', async function (req, res, next) {
 
 router.get('/user.js', async function (req, res, next) {
     if (req.session && req.session.user_id && req.session.user_name) {
-        res.type('.js').send(`const USER = { id: "${req.session.user_id}", name: "${req.session.user_name}" };`);
+        res.type('.js').send(`
+            const USER = { id: "${req.session.user_id}", name: "${req.session.user_name}" };
+            const DEBUG_MODE = ${inDebugMode()};
+        `);
     } else {
         res.type('.js').send(`const USER = null;`);
     }

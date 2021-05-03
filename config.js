@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 
 const PORT = process.env.PORT || 3000;
 const {
+    ENV,
     FORGE_CLIENT_ID,
     FORGE_CLIENT_SECRET,
     FORGE_BUCKET,
@@ -37,5 +38,6 @@ module.exports = {
         ACTIVITY_ID: 'Assemble',
         ACTIVITY_ALIAS: 'prod'
     },
-    CACHE_FOLDER: CacheFolder
+    CACHE_FOLDER: CacheFolder,
+    inDebugMode: () => ENV === 'dev'
 };

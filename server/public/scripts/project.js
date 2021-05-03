@@ -24,6 +24,9 @@ $(async function () {
         if (userLoggedIn() && USER.id === project.author_id && !project.public && !project.status) {
             updateGeneralUI(project, template);
             updateEditingUI(project, template);
+        } else if (DEBUG_MODE) {
+            updateGeneralUI(project, template);
+            updateEditingUI(project, template);
         } else {
             updateGeneralUI(project, template);
             updateViewingUI(project, template);
