@@ -30,7 +30,8 @@ async function createProject(name, authorName, authorId, templateId) {
         public: false,
         status: null,
         progress: 0,
-        urn: null
+        urn: null,
+        inventor_engine: INVENTOR_PIPELINE.ENGINE
     };
     await dataManagementClient.uploadObject(FORGE_BUCKET, `projects/${id}/project.json`, 'application/json', JSON.stringify(project));
     return project;
