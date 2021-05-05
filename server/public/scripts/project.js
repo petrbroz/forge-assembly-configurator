@@ -300,7 +300,7 @@ async function updateStatus(project) {
 
     // If the project is still being built, schedule another update
     if (status.status === 'inprogress') {
-        setTimeout(updateStatus, 5000, project);
+        setTimeout(updateStatus, 10 * 1000, project);
     }
 }
 
