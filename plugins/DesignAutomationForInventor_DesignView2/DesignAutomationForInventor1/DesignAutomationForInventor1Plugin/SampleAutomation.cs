@@ -194,6 +194,11 @@ namespace DesignAutomationForInventor1Plugin
 
                     LogTrace("Assembling modules");
                     doc = inventorApplication.Documents.Add(DocumentTypeEnum.kAssemblyDocumentObject, "", false);
+                    
+                    // Let's save it (and provide file name for it) befroe doing anything else with it
+                    // If we tried to do it in the end with 2022 engine, we'd get an error
+                    var assemblyPath = System.IO.Path.Combine(modulesDir, "template.iam");
+                    doc.SaveAs(assemblyPath, false);
                     AssemblyDocument asmDoc = doc as AssemblyDocument;
 
                     // Add Design View representation in case we need it
@@ -280,8 +285,7 @@ namespace DesignAutomationForInventor1Plugin
                     doc.Update();
 
                     LogTrace("Saving assembly");
-                    var assemblyPath = System.IO.Path.Combine(modulesDir, "template.iam");
-                    doc.SaveAs(assemblyPath, false);
+                    doc.Save2();
                     var rfaPath = System.IO.Path.Combine(currentDir, "output.rfa");
                     ExportRFA(doc, rfaPath);
 
