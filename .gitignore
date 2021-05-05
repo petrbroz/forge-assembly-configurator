@@ -1,7 +1,6 @@
 .env
 .vs/
 .vscode/
-output/
 bin/
 obj/
 node_modules/
