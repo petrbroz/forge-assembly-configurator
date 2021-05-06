@@ -49,7 +49,7 @@ router.post('/', upload.fields([{ name: 'assets' }, { name: 'thumbnail' }]), asy
             throw new Error('Access denied');
         }
         const assetsFile = req.files.assets[0];
-        const thumbnailFile = req.files?.thumbnail[0];
+        const thumbnailFile = req.files?.thumbnail?.[0];
         if (!req.body.name || !assetsFile) {
             throw new Error('One of the required fields is missing: name, assets');
         }
