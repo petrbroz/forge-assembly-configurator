@@ -153,6 +153,17 @@ namespace DesignAutomationForInventor1Plugin
             LogTrace("Exported RFA file.");
         }
 
+        public void LogAssemblyVersion()
+        {
+            Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            DateTime buildDate = new DateTime(2000, 1, 1)
+                                    .AddDays(version.Build)
+                                    .AddSeconds(version.Revision * 2);
+            string displayableVersion = $"AppBundle {version} ({buildDate})";
+
+            Trace.TraceInformation(displayableVersion);
+        }
+
         public void RunWithArguments(Document doc, NameValueMap map)
         {
             // map["_1"] contains absolute path to configuration json
@@ -179,6 +190,8 @@ namespace DesignAutomationForInventor1Plugin
                   }
                ] 
             */
+
+            LogAssemblyVersion();
 
             try
             {
