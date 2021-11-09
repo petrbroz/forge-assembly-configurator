@@ -28,7 +28,7 @@ Live demo: https://forge-assembly-configurator.herokuapp.com
 - install dependencies: `yarn install`
 - setup env. variables listed in _config.js_
 - if not available, create the Design Automation pipeline: `node tools/setup-inventor-pipeline.js`
-- if not available, create a sample template: `node tools/setup-template-przemek.js`
+- if not available, create a sample template: `node tools/setup-sample-template-przemek.js`
 - run the server `yarn start`
 - visit http://localhost:3000
 
